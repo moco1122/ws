@@ -93,4 +93,11 @@ local.properties
 *.out
 *.app
 
+dcrawcv
+drawbox
+listnef
+mkflat
+qlnef
+test
+
 
