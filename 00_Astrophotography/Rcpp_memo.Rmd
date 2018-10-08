@@ -1,0 +1,15 @@
+---
+title: "Rcpp"
+author: "Atsushi Kawai"
+date: "2017/3/31"
+output: html_document
+---
+
++ XcodeをアンインストールしてCommand Line Toolsに変更 5GBほど容量空いた
+
++ sourceCpp()後、実行して、ソースを変更してからsourceCpp()するとsegmentation faultでRStudioごと終了
+    + Ubuntuでも同じ
+    + R単独でも同じ
+    + 変数、関数をrm()してgc()しても同じ
+    
+    + 普通の関数では落ちない。alloc/freeのためか？
