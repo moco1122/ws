@@ -1,9 +1,5 @@
 /*
- * CUtils.cpp
- *
- *  Created on: 2014/03/03
- *              2018/07/10 : reject boost dependency
- *      Author: Atsushi Kawai
+ * Utils++.cpp
  *
  *  Matを使わないユーティリティ関数類
  */

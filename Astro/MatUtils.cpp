@@ -1,10 +1,6 @@
 /*
  * MatUtils.cpp
  *
- *  Created on: 2013/11/14
- *              2018/07/10 : reject boost dependency
- *      Author: Atsushi Kawai
- *
  *	OpenCVのMatを用いた画像処理のための共通関数
  */
 

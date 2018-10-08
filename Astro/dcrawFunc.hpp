@@ -1,8 +1,5 @@
 /*
  * dcrawcv.hpp
- *
- *  Created on: 2016/10/15
- *      Author: kawai
  */
 
 #ifndef DCRAWFUNC_HPP_

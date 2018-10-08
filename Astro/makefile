@@ -1,29 +1,6 @@
 
-export PATH := /usr/local/bin/:$(PATH)
-#:で区切る
-export PKG_CONFIG_PATH := /usr/local/opt/opencv@2/lib/pkgconfig:/usr/local/opt/gflags/lib/pkgconfig
-
-#INCL=-I/opt/local/include
-#LIBS=-L/opt/local/lib -lopencv_core -lopencv_highgui -lopencv_imgproc -lboost_program_options
-
-CXX=g++
-CXX_FLAG=-Wall -O3
-
-#INCL_CV=`pkg-config --cflags opencv`
-#LIBS_CV=`pkg-config --libs opencv` -ljpeg -ljasper -llcms2 
-INCL_CV=/usr/local/Cellar/opencv@2/2.4.13.6_2/include/opencv:/usr/local/Cellar/opencv@2/2.4.13.6_2/include
-CV_LIB=/usr/local/Cellar/opencv@2/2.4.13.6_2/lib
-CV_LD_FLAG=-lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_nonfree -lopencv_objdetect -lopencv_ocl -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab -ljpeg -ljasper -llcms2
-
-#INCL_GF=`pkg-config --cflags gflags`
-#LIBS_GF=`pkg-config --libs gflags`
-INCL_GF=/usr/local/Cellar/gflags/2.2.1/include
-GF_LIB=/usr/local/Cellar/gflags/2.2.1/lib
-GF_LD_FLAG=-lgflags
-
-R_DIR=/Library/Frameworks/R.framework
-INCL_R=${R_LIB}/Resources/include:${R_LIB}/Rcpp/include:${R_LIB}/RInside/include
-R_LIB=${R_DIR}/Versions/3.5/Resources/library
+include Makefile_osx.in
+include Makefile_win10.in
 
 export C_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
 export CPLUS_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
@@ -50,21 +27,6 @@ obj/dcrawFunc.o : dcrawFunc.cpp dcrawFunc.hpp
 test : test.cpp makefile ${LIB_MYCV}
 	g++ -O3 -o $@ test.cpp ${LIB_MYCV} ${LD_FLAG}
 	cp $@ ../bin/
-
-#test : Test.cpp makefile
-#	echo ${LIBRARY_PATH}
-#	g++ -o $@ Test.cpp ${LD_FLAG}
-#	cp $@ ../bin/
-		
-#nefreadertest : NEFReader_test.cpp NEFReader.cpp NEFReader.hpp dcraw_functions.h dcraw_functions.o
-#	${CXX} ${CXX_FLAG} -c -o NEFReader.o NEFReader.cpp
-#	${CXX} ${CXX_FLAG} -o $@ NEFReader_test.cpp NEFReader.o dcraw_functions.o
-#	# ${LIBS} -ljasper -ljpeg -llcms2
-#	cp $@ /ws/bin/
-#dcraw_functions.o : dcraw_functions.c dcraw_functions.h
-#	${CXX} ${CXX_FLAG} -c -o $@ dcraw_functions.c
-#FLAGS=-O3 -Wall -Wno-sign-compare -Wno-dangling-else -Wno-constant-conversion -Wno-macro-redefined
-#FLAGS+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-operand 
 
 Wno_FLAG+=-Wno-dangling-else -Wno-constant-conversion -Wno-macro-redefined
 Wno_FLAG+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-operand 

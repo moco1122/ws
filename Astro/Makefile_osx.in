@@ -1,0 +1,22 @@
+export PATH := /usr/local/bin/:$(PATH)
+#:で区切る
+#export PKG_CONFIG_PATH := /usr/local/opt/opencv@2/lib/pkgconfig:/usr/local/opt/gflags/lib/pkgconfig
+
+CXX=g++
+CXX_FLAG=-Wall -O3
+
+#INCL_CV=`pkg-config --cflags opencv`
+#LIBS_CV=`pkg-config --libs opencv` -ljpeg -ljasper -llcms2
+INCL_CV=/usr/local/Cellar/opencv@2/2.4.13.6_2/include/opencv:/usr/local/Cellar/opencv@2/2.4.13.6_2/include
+CV_LIB=/usr/local/Cellar/opencv@2/2.4.13.6_2/lib
+CV_LD_FLAG=-lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_nonfree -lopencv_objdetect -lopencv_ocl -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab -ljpeg -ljasper -llcms2
+
+#INCL_GF=`pkg-config --cflags gflags`
+#LIBS_GF=`pkg-config --libs gflags`
+INCL_GF=/usr/local/Cellar/gflags/2.2.1/include
+GF_LIB=/usr/local/Cellar/gflags/2.2.1/lib
+GF_LD_FLAG=-lgflags
+
+R_DIR=/Library/Frameworks/R.framework
+INCL_R=${R_LIB}/Resources/include:${R_LIB}/Rcpp/include:${R_LIB}/RInside/include
+R_LIB=${R_DIR}/Versions/3.5/Resources/library

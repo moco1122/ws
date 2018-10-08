@@ -1,15 +1,8 @@
 /*
- * dcrawcv.cpp
+ * dcrawFunc.cpp
  *
- *  Created on: 2016/10/15
- *      Author: kawai
- */
-
-/*
- * Dcraw.cpp
+ *  Based on dcraw
  *
- *  Created on: 2016/06/19
- *      Author: kawai
  */
 #include <stdio.h>
 #include <cstdlib>

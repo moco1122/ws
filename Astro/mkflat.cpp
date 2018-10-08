@@ -1,9 +1,6 @@
 /*
  * mkflat.cpp
  *
- *  Created on: 2018/09/09
- *      Author: kawai
- *
  *  フラットフレームを簡易現像して、天体確認用の簡易現像で使えるようにtifで保存
  *  オプションでフラットの明るさ確認・統計情報・プロファイル確認も行う
  *
@@ -86,7 +83,7 @@ FlatMaker< T >::FlatMaker(string _input, string _output) {
 
 	if(FLAGS_awb) {
 		start_time();
-		A.AWB(F0, xrange, yrange);
+		A.AWB(F0, Rect(xrange.start, yrange.start, xrange.size(), yrange.size()));
 		cout << elapsed_time() << "s " << A.rGain << " " << A.bGain << endl;
 	}
 

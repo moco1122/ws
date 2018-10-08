@@ -1,9 +1,6 @@
 /*
  * QuickLook.cpp
  *
- *  Created on: 2013/11/15
- *      Author: Atsushi Kawai
- *
  * 画像表示確認用のクラス
  */
 #include <opencv2/opencv.hpp>

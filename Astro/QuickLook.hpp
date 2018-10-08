@@ -1,9 +1,6 @@
 /*
  * QuickLook.hpp
  *
- *  Created on: 2013/11/15
- *      Author: Atsushi Kawai
- *
  * 画像表示確認用のクラス
  * 画像のグループを同じ場所・倍率で比較表示するためのUIを備える。
  */

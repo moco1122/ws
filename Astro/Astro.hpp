@@ -2,7 +2,7 @@
  * Astro.hpp
  *
  *  Created on: 2018/09/17
- *      Author: kawai
+ *
  */
 
 #ifndef ASTRO_HPP_

@@ -1,14 +1,8 @@
 /*
  * MatUtils.hpp
  *
- *  Created on: 2013/11/14
- *              2018/07/10 : reject boost dependency
- *      Author: Atsushi Kawai
- *
  *	OpenCVのMatを用いた画像処理のための共通関数
  *
- *  OpenCV2.4.xのころ、Mat を返すテンプレート関数は*.cppで定義して明示的インスタンス化しないと
- *  勝手に解放されて(?)自作関数で正しく表示できない場合があった。
  */
 
 #ifndef MATUTILS_HPP_

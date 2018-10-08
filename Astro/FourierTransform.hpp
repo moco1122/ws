@@ -1,10 +1,6 @@
 /*
  * FourierTransform.hpp
  *
- *  Created on: 2015/06/04
- *              2018/07/12 : reject boost dependency
- *      Author: Atsushi Kawai
- *
  * OpenCVを使ったFFTの関数
  */
 #ifndef FOURIERTRANSFORM_HPP_

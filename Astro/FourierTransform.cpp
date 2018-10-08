@@ -1,10 +1,6 @@
 /*
  * FourierTransform.cpp
  *
- *  Created on: 2014/05/13
- *              2018/07/12 : reject boost dependency
- *      Author: Atsushi Kawai
- *
  * OpenCVを使ったFFTの関数
  */
 
