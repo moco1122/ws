@@ -1,6 +1,8 @@
-
-include Makefile_osx.in
+ifeq ($(OS), win10)
 include Makefile_win10.in
+else
+include Makefile_osx.in
+endif
 
 export C_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
 export CPLUS_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
