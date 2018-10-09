@@ -1,0 +1,114 @@
+git --version
+git config --global user.name "kawai@tonari"
+git config --global user.email "Atsushi.Kawai@nikon.com"
+git config --global color.ui auto; #デフォルト設定なので不要？
+
+#Git1.8あたりからでるようになったpush時のbranch省略したときの警告を消すため
+#http://qiita.com/yaotti/items/a8e9f5de8dcca81d3214
+git config --global push.default simple;
+
+#認証情報の保存
+#https://git-scm.com/book/ja/v2/Git-%E3%81%AE%E3%81%95%E3%81%BE%E3%81%96%E3%81%BE%E3%81%AA%E3%83%84%E3%83%BC%E3%83%AB-%E8%AA%8D%E8%A8%BC%E6%83%85%E5%A0%B1%E3%81%AE%E4%BF%9D%E5%AD%98
+#一定時間有効
+#git config --global credential.helper cache --timeout 43200
+#git config --global credential.helper 'cache --timeout=43200'
+#永久に有効
+#git config --global credential.helper store --file ~/.my-credentials
+#->効かなかった...なぜ？
+
+#リポジトリを複製 ローカルのディレクトリ名を省略すると.gitを削除した名前に
+git clone /git/ggg.git
+git clone ssh://10.3.28.219:/git/ggg.git
+#ファイル作成/インデックスに登録/コミット
+echo aaa bbb > test.txt
+mkdir ttt; echo zzz > ttt/zzz.txt
+#それぞれのローカルでcommitしたいファイルを登録（変更あれば表示される？）
+git add test.txt ttt
+echo www > ttt/www.txt; #addしたあとに追加するとindexに登録されない
+git status
+git commit -m "first commit"
+git commit -am "first commit" ; #add+commit
+#リモートリポジトリの登録(複製すると省略可？)
+#git remote add origin https://[your_space_id].backlog.jp/git/[your_project_key]/tutorial.git
+#リモートリポジトリにpush
+git push -u orign master
+#リモートリポジトリからpull
+git pull
+```
+
+##使い方まとめ
+
++ 最初にclone
++ 新しくファイル追加したらadd
++ ファイル修正したらcommit
+   + Chages not staged for commitと表示されるが、-aをつければ全部commitしてくれる
++ リモートにpush
++ リモートからpull
+
+変にリポジトリ変えたりしなければこんなかんじ？
+
+###リモートリポジトリの状態確認
+```{bash, eval=F}
+git ls-remote
+```
+
+###ローカルリポジトリのファイルを確認
+```{bash, eval=F}
+git ls-files -v
+```
+
+###特定の拡張子のファイルを管理に含めない
+.gitignoreに以下を書いて
+
+```{bash, eval=F}
+more .gitignore
+#*~
+#*/**/*~
+#*.o
+#*/**/*.o
+git add .; #.gitignoreで指定されたファイル以外が全部含まれる
+```
+
+
+###追加してしまったファイルを管理から外す
+一旦追加した.Rhistoryだけが更新される場合が多い...
+
++ 更新を保持しない（リモートの更新が反映される）
+```{bash, eval=F}
+git update-index --assume-unchanged [ファイル名]
+#この設定を取り消すには次のようにします。
+git update-index --no-assume-unchanged [ファイル名]
+```
+
++ 更新を保持（リモートの更新が反映されない）
+```{bash, eval=F}
+git update-index --skip-worktree [ファイル名]
+#この設定を取り消すには次のようにします。
+git update-index --no-skip-worktree [ファイル名]
+```
+
+.Rhistoryはskip-worktreeにするのが良さそう
+```{bash, eval=F}
+git ls-files -v | grep hist
+git update-index --skip-worktree .Rhistory
+git update-index --skip-worktree */.Rhistory
+git update-index --skip-worktree */*/.Rhistory
+git update-index --skip-worktree */*/*/.Rhistory
+git update-index --skip-worktree */*/*/*/.Rhistory
+git ls-files -v | grep hist
+```
+
+###コミットの統合
+```{bash, eval=F}
+git log --oneline #git1
+
+#20履歴目までを編集 上ほど古い
+#上のコミットと統合したいコミットを先頭をsにして保存終了
+#->コメントのエディタが順番に開くので1行にまとめる
+git rebase -i HEAD~20
+
+#ローカルの修正をリモートに反映
+git push --force
+#別のローカルに反映（未コミットの修正は全て破棄されるので注意）
+git reset --hard origin/master
+```

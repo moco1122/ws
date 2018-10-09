@@ -1,0 +1,45 @@
+alias rm='rm -i'
+
+alias brc='emacs ~/.bashrc'
+alias sbrc='source ~/.bashrc'
+alias sdate='date "+%Y/%m/%d %H:%M:%S"'
+
+alias cdd='cd ../'
+alias cdw='cd /ws'
+alias en='LANG=en_US.UTF-8 '
+
+alias ls='ls -G'
+#alias ls='ls -CF'
+alias la='ls -A'
+alias lt='ls -lrt'
+alias lg='lt --block-size=G'
+alias lk='lt --block-size=K'
+alias ll='ls -l'
+#alias ll1='ll --block-size=1'
+alias lm='lt --block-size=M'
+#alias ls='ls -hF --color=tty'
+alias ls1='ls --block-size=1'
+#alias lt='\ls -lrt --time-style=+'\''%Y/%m/%d %H:%M:%S'\'' --color=auto'
+#alias lt1='lt --block-size=1'
+#alias la='ls -a'
+#alias lt='ls -lrt'
+
+alias moer='more'
+alias mroe='more'
+alias mvnef='mkdir -p NEF; mv ./*.NEF NEF/'
+
+alias git1='git log --oneline'
+alias gitc='git commit -am'
+alias gitb="gitc \"\`sdate\` osx \""
+alias gitl='git ls-remote'
+alias gits='git status'
+
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias gerp='grep'
+alias grep='grep --color'
+alias grpe='grep'
+alias hgrep='history | grep '
+alias hhh='history | cut -f4- -d " "'
+
+
