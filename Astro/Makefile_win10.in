@@ -16,6 +16,7 @@ INCL_GF=/mingw64/include
 GF_LIB=/msys64/mingw64/lib
 GF_LD_FLAG=-lgflags
 
+
 R_DIR=/Library/Frameworks/R.framework
 INCL_R=${R_LIB}/Resources/include:${R_LIB}/Rcpp/include:${R_LIB}/RInside/include
 R_LIB=${R_DIR}/Versions/3.5/Resources/library
