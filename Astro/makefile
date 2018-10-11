@@ -70,11 +70,6 @@ drawbox : drawbox.cpp makefile ${LIB_MYCV}
 	cp $@ ../bin/
 	
 check_path :
-	echo ${INCL_CV}
-	echo ${INCL_GF}
-	echo ${LIBS_CV}
-	echo ${LIBS_GF}
-	echo ${LD_FLAG}
 	@env | grep ^PATH
 	@env | grep INCLUDE
 	@env | grep LIBRARY
