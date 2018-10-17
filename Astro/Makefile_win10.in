@@ -8,7 +8,13 @@ CXX_FLAG=-Wall -O3
 #LIBS_CV=`pkg-config --libs opencv` -ljpeg -ljasper -llcms2
 INCL_CV=/mingw64/include/opencv:/mingw64/include/
 CV_LIB=/msys64/mingw64/lib
-CV_LD_FLAG=-lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_nonfree -lopencv_objdetect -lopencv_ocl -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab -ljpeg -ljasper -llcms2
+CV_LD_FLAG=-lopencv_core -lopencv_imgproc -lopencv_highgui
+#CV_LD_FLAG=-lopencv_calib3d -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_highgui -lopencv_imgproc -lopencv_ml
+#CV_LD_FLAG+=-lopencv_objdetect -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_video -lopencv_videostab
+# -lopencv_contrib -lopencv_gpu -lopencv_legacy -lopencv_nonfree -lopencv_ocl -lopencv_ts
+CV_LD_FLAG=-LC:/msys64/mingw64/lib -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_photo -lopencv_aruco -lopencv_bgsegm -lopencv_ccalib -lopencv_dnn_modern -lopencv_dpm -lopencv_face -lopencv_fuzzy -lopencv_hdf -lopencv_img_hash -lopencv_line_descriptor -lopencv_optflow -lopencv_reg -lopencv_rgbd -lopencv_saliency -lopencv_sfm -lopencv_stereo -lopencv_structured_light -lopencv_viz -lopencv_phase_unwrapping -lopencv_surface_matching -lopencv_tracking -lopencv_datasets -lopencv_text -lopencv_dnn -lopencv_plot -lopencv_ml -lopencv_xfeatures2d -lopencv_shape -lopencv_video -lopencv_ximgproc -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_flann -lopencv_xobjdetect -lopencv_imgcodecs -lopencv_objdetect -lopencv_xphoto -lopencv_imgproc -lopencv_core
+CV_LD_FLAG+=-ljpeg -ljasper -llcms2
+CV_LD_FLAG+=-lws2_32
 
 #INCL_GF=`pkg-config --cflags gflags`
 #LIBS_GF=`pkg-config --libs gflags`

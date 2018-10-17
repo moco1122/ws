@@ -8,7 +8,8 @@ export C_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
 export CPLUS_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
 export LIBRARY_PATH=/usr/local/lib:${CV_LIB}:${GF_LIB}:${R_LIB}/RInside/lib
 
-LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} ${R_LD_FLAG} -ltiff
+#LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} ${R_LD_FLAG} -ltiff
+LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} -ltiff
 
 LIB_MYCV=libmycv.a
 OBJ_MYCV=obj/Utils++.o obj/MatUtils.o obj/QuickLook.o
@@ -33,6 +34,7 @@ test : test.cpp makefile ${LIB_MYCV}
 Wno_FLAG+=-Wno-dangling-else -Wno-constant-conversion -Wno-macro-redefined
 Wno_FLAG+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-operand 
 Wno_FLAG+=-Wno-string-plus-int -Wno-unused-variable
+Wno_FLAG+=-Wno-narrowing -Wno-literal-suffix -Wno-overflow -fpermissive -Wno-write-strings
 
 dcrawcv : dcrawcvApp.cpp makefile
 	${CXX} ${CXX_FLAG} -o $@ dcrawcvApp.cpp ${LD_FLAG} ${Wno_FLAG}

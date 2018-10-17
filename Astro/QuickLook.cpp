@@ -204,6 +204,7 @@ void QuickLook::wait() {
 
 	cout << endl;
 	cout << "Key binds  n:Next / b:Back / q:Quit" << endl;
+	string tif_name = "ql.tif";
 
 	while((key=waitKey(-1))) {
 //				printf("%c %d %d\n",key,key,'q');
@@ -213,7 +214,7 @@ void QuickLook::wait() {
 			return;
 			break;
 		case 'p' :
-			imwrite("ql.tif",Ds[iCurrentWindow]);
+			imwrite(tif_name.c_str(), Ds[iCurrentWindow]);
 			break;
 		case 'q' :
 			exit(0);

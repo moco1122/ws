@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <cmath>
+#include <string>
 
 #include "dcrawFunc.hpp"
 
@@ -17,7 +18,6 @@ namespace dcraw {
 //#define DBG_MESSAGE std::cout << __FILE__ << ":" << __LINE__ << " " << __func__ << "()" << std::endl;
 //#define DBG_MESSAGE(message) std::cout << cv::format("[%5d]%s() : %s",__LINE__,__func__,message) << std::endl;
 #define DBG_MESSAGE(message) printf("[%5d]%s() : %s\n",__LINE__,__func__,message);
-#define DBG_MESSAGE(message)
 
 /*
    dcraw.c -- Dave Coffin's raw photo decoder
@@ -191,6 +191,8 @@ struct ph1 {
 
 #define SQR(x) ((x)*(x))
 #define ABS(x) (((int)(x) ^ ((int)(x) >> 31)) - ((int)(x) >> 31))
+#undef MIN
+#undef MAX
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define LIM(x,min,max) MAX(min,MIN(x,max))
@@ -387,7 +389,7 @@ void CLASS read_shorts (ushort *pixel, int count)
 	DBG_MESSAGE("start");
 	if (fread (pixel, 2, count, ifp) < count) derror();
 	if ((order == 0x4949) == (ntohs(0x1234) == 0x1234))
-		swab (pixel, pixel, count*2);
+		swab ((char *)pixel, (char *)pixel, count*2);
 }
 
 void CLASS cubic_spline (const int *x_, const int *y_, const int len)
@@ -2335,7 +2337,7 @@ fill_input_buffer (j_decompress_ptr cinfo)
 	size_t nbytes;
 
 	nbytes = fread (jpeg_buffer, 1, 4096, ifp);
-	swab (jpeg_buffer, jpeg_buffer, nbytes);
+	swab ((char *)jpeg_buffer, (char *)jpeg_buffer, nbytes);
 	cinfo->src->next_input_byte = jpeg_buffer;
 	cinfo->src->bytes_in_buffer = nbytes;
 	return (boolean)TRUE;
@@ -9753,7 +9755,7 @@ void CLASS write_ppm_tiff()
 				FORCC ppm [col*colors+c] = curve[image[soff][c]] >> 8;
 			else FORCC ppm2[col*colors+c] = curve[image[soff][c]];
 		if (output_bps == 16 && !output_tiff && htons(0x55aa) != 0x55aa)
-			swab (ppm2, ppm2, width*colors*2);
+			swab ((char *)ppm2, (char *)ppm2, width*colors*2);
 		fwrite (ppm, colors*output_bps/8, width, ofp);
 	}
 	free (ppm);
@@ -9931,7 +9933,7 @@ if (write_to_stdout) {
 #if defined(WIN32) || defined(DJGPP) || defined(__CYGWIN__)
 	if (setmode(1,O_BINARY) < 0) {
 		perror ("setmode()");
-		nef.res = 1;
+		//nef.res = 1;
 		return(nef);
 	}
 #endif
