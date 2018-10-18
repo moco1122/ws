@@ -138,12 +138,12 @@ void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 			}
 			break;
 		case cv::EVENT_LBUTTONDOWN:
-//			cout << __func__ << "() EVENT_LBUTTONDOWN" << endl;
+			//			cout << __func__ << "() EVENT_LBUTTONDOWN" << endl;
 			qlnef->drawing_box = true;
 			qlnef->box = cv::Rect(x / qlnef->factor_thumbnail, y / qlnef->factor_thumbnail, 0, 0);
 			break;
 		case cv::EVENT_LBUTTONUP:
-//			cout << __func__ << "() EVENT_LBUTTONUP" << endl;
+			//			cout << __func__ << "() EVENT_LBUTTONUP" << endl;
 			qlnef->drawing_box = false;
 			qlnef->dark_mode = false;
 			if (qlnef->box.width < 0){
@@ -155,9 +155,9 @@ void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 				qlnef->box.height *= -1;
 			}
 			cout << "#Selected box : " << qlnef->box << endl;
-//			dark_box = Rect()
-//			cout << cv::format("cbMouseThumbnail lbutton %d %s  %d %d",
-//					qlThumbnail->wxn, qlThumbnail->names[0].c_str(), x, y) << endl;
+			//			dark_box = Rect()
+			//			cout << cv::format("cbMouseThumbnail lbutton %d %s  %d %d",
+			//					qlThumbnail->wxn, qlThumbnail->names[0].c_str(), x, y) << endl;
 
 			meanStdDev(qlnef->I1(qlnef->box), tmean, tstddev);
 			qlnef->min0 = tmean.val[1];
@@ -170,8 +170,8 @@ void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 	else {
 		switch(event) {
 		case EVENT_LBUTTONDOWN :
-//			cout << cv::format("cbMouseThumbnail lbutton %d %s  %d %d",
-//					qlThumbnail->wxn, qlThumbnail->names[0].c_str(), x, y) << endl;
+			//			cout << cv::format("cbMouseThumbnail lbutton %d %s  %d %d",
+			//					qlThumbnail->wxn, qlThumbnail->names[0].c_str(), x, y) << endl;
 			qlnef->setMainPosition(x / qlnef->factor_thumbnail, y / qlnef->factor_thumbnail, qlnef->main_scale);
 			qlnef->update();
 			break;
@@ -196,8 +196,8 @@ void cbMouseMain(int event,int x,int y,int flag,void *data) {
 		//		message += "MOUSE_MOVE ";
 		break;
 	case EVENT_LBUTTONDOWN :
-//		cout << cv::format("cbMouseMain lbutton %d %s  %d %d",
-//				qlMain->wxn, qlMain->names[0].c_str(), x, y) << endl;
+		//		cout << cv::format("cbMouseMain lbutton %d %s  %d %d",
+		//				qlMain->wxn, qlMain->names[0].c_str(), x, y) << endl;
 		new_xc = qlnef->main_xc + (x - qlnef->main_width / 2) / qlnef->main_factor;
 		new_yc = qlnef->main_yc + (y - qlnef->main_height / 2) / qlnef->main_factor;
 		qlnef->setMainPosition(new_xc, new_yc, qlnef->main_scale);
@@ -244,14 +244,20 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 
 	//フラット補正
 	//TODO 関数
-	cout << "#FlatFielding" << endl;
-	F0 = imread(flat.c_str(), -1) / flat_value;
-	vector< Mat > vI0;
-	split(I0, vI0);
-	for(int b = 0; b <= 2; b++) {
-		divide(vI0[b], F0, vI0[b]);
+	std::ifstream ifs(flat);
+	if(ifs.is_open()) {
+		cout << "#FlatFielding" << endl;
+		F0 = imread(flat.c_str(), -1) / flat_value;
+		vector< Mat > vI0;
+		split(I0, vI0);
+		for(int b = 0; b <= 2; b++) {
+			divide(vI0[b], F0, vI0[b]);
+		}
+		merge(vI0, I1);
 	}
-	merge(vI0, I1);
+	else {
+		I1 = I0;
+	}
 	cv::meanStdDev(I1, mean0, stddev0);
 	//表示画像/サムネイル画像を生成
 	if(FLAGS_Dt >= 0) {
@@ -319,10 +325,10 @@ void QuickLookNEF< T >::createDisplayImages() {
 			Point(main_x1 * factor_thumbnail, main_y1 * factor_thumbnail),
 			Point(main_x2 * factor_thumbnail, main_y2 * factor_thumbnail), Scalar(0, 200, 0), 1, 4);
 	if(box.width != 0 && box.height != 0) {
-	    cv::rectangle(D1_thumbnail_framed,
-	    		cv::Point2d(box.x * factor_thumbnail, box.y * factor_thumbnail),
+		cv::rectangle(D1_thumbnail_framed,
+				cv::Point2d(box.x * factor_thumbnail, box.y * factor_thumbnail),
 				cv::Point2d((box.x + box.width) * factor_thumbnail, (box.y + box.height) * factor_thumbnail),
-	        Scalar(0, 200, 200), 1, 4);
+				Scalar(0, 200, 200), 1, 4);
 	}
 
 	D1_main = D1(Range(main_y1, main_y2), Range(main_x1, main_x2));

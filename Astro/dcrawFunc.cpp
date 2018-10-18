@@ -17,8 +17,8 @@ namespace dcraw {
 
 //#define DBG_MESSAGE std::cout << __FILE__ << ":" << __LINE__ << " " << __func__ << "()" << std::endl;
 //#define DBG_MESSAGE(message) std::cout << cv::format("[%5d]%s() : %s",__LINE__,__func__,message) << std::endl;
-#define DBG_MESSAGE(message) printf("[%5d]%s() : %s\n",__LINE__,__func__,message);
-
+//#define DBG_MESSAGE(message) printf("[%5d]%s() : %s\n",__LINE__,__func__,message);
+#define DBG_MESSAGE
 /*
    dcraw.c -- Dave Coffin's raw photo decoder
    Copyright 1997-2015 by Dave Coffin, dcoffin a cybercom o net
