@@ -25,19 +25,14 @@ obj/QuickLook.o : QuickLook.cpp QuickLook.hpp
 #obj/Astro.o : Astro.cpp Astro.hpp
 
 obj/dcrawFunc.o : dcrawFunc.cpp dcrawFunc.hpp
-	g++ -O3 -o $@ -c ${@:obj/%.o=%.cpp} ${Wno_FLAG}
+	g++ -O3 -o $@ -c ${@:obj/%.o=%.cpp} ${Wno_DCRAW}
 	
 test : test.cpp makefile ${LIB_MYCV}
 	g++ -O3 -o $@ test.cpp ${LIB_MYCV} ${LD_FLAG}
 	cp $@ ../bin/
 
-Wno_FLAG+=-Wno-dangling-else -Wno-constant-conversion -Wno-macro-redefined
-Wno_FLAG+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-operand 
-Wno_FLAG+=-Wno-string-plus-int -Wno-unused-variable
-Wno_FLAG+=-Wno-narrowing -Wno-literal-suffix -Wno-overflow -fpermissive -Wno-write-strings
-
 dcrawcv : dcrawcvApp.cpp makefile
-	${CXX} ${CXX_FLAG} -o $@ dcrawcvApp.cpp ${LD_FLAG} ${Wno_FLAG}
+	${CXX} ${CXX_FLAG} -o $@ dcrawcvApp.cpp ${LD_FLAG} ${Wno_DCRAW}
 	cp $@ ../bin/
 
 gflagtest : gflag.cpp makefile
@@ -70,7 +65,9 @@ qlnef : qlnef.cpp makefile ${LIB_MYCV} Astro.hpp
 drawbox : drawbox.cpp makefile ${LIB_MYCV} 
 	${CXX} ${CXX_FLAG} -o $@ drawbox.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
 	cp $@ ../bin/
-	
+
+all : ${LIB_MYCV} listnef mkflat qlnef
+
 check_path :
 	@env | grep ^PATH
 	@env | grep INCLUDE
@@ -79,4 +76,4 @@ check_path :
 	@which g++
 	
 clean : 
-	rm -f *.o obj/*.o *.a
+	rm -f *.o obj/*.o *.a listnef mkflat qlnef
