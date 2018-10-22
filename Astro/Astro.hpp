@@ -170,18 +170,17 @@ void Astrophoto::normalize(Mat_< Vec< T, 3 > > &I0, double min0, double max0, do
 
 
 template< typename T >
-Mat3b hist(Mat_< T > &I0) {
+Mat3b hist(Mat_< T > &I0, const int ch_width = 1024, const int ch_height = 200, int bit_depth = 14) {
 	if(I0.channels() != 3) {
 		cout << __LINE__ << ":" << __func__ << " I0.channels() != 3" << endl;
 		exit(0);
 	}
 	// ヒストグラムを描画する画像割り当て
-	const int ch_width = 1024, ch_height = 200;
 	Mat3b H;
 	vector< Mat1b > vH(3);
 	vector< Mat > hists(3);
-	const int hdims[] = {1024}; // 次元毎のヒストグラムサイズ
-	const float hranges[] = {0, (1<<14)-1};
+	const int hdims[] = {ch_width}; // 次元毎のヒストグラムサイズ
+	const float hranges[] = {0, (1 << bit_depth)-1};
 	const float* ranges[] = {hranges}; // 次元毎のビンの下限上限
 	vector<double> max_vals(3);
 

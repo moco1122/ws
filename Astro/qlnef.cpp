@@ -4,6 +4,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include <gflags/gflags.h>
@@ -66,6 +67,8 @@ class QuickLookNEF {
 public:
 	QuickLook qlMain;
 	QuickLook qlThumbnail;
+	QuickLook qlHistogram1;
+	QuickLook qlHistogram2;
 
 	bool dark_mode;
 	bool drawing_box;
@@ -77,6 +80,8 @@ public:
 	Mat3b D1_thumbnail; //サムネイル
 	Mat3b D1_thumbnail_framed; //サムネイル+枠
 	Mat3b D1_main; //メインウインドウ
+	Mat3b D1_histogram1; //ヒストグラム
+	Mat3b D1_histogram2; //ヒストグラム
 
 	float factor_thumbnail;
 	int main_width, main_height;
@@ -121,8 +126,8 @@ template < typename T >
 void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 	//cout << __func__ << endl;
 	QuickLookNEF<T> *qlnef = reinterpret_cast< QuickLookNEF<T> *>(data);
-	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
-	QuickLook *qlMain = &(qlnef->qlMain);
+//	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
+//	QuickLook *qlMain = &(qlnef->qlMain);
 
 	Scalar tmean, tstddev;
 
@@ -184,8 +189,8 @@ void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 template < typename T >
 void cbMouseMain(int event,int x,int y,int flag,void *data) {
 	QuickLookNEF<T> *qlnef = reinterpret_cast< QuickLookNEF<T> *>(data);
-	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
-	QuickLook *qlMain = &(qlnef->qlMain);
+//	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
+//	QuickLook *qlMain = &(qlnef->qlMain);
 	int new_xc, new_yc;
 	//	string message;
 	//cout << flag << endl;
@@ -218,6 +223,8 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 	flat = FLAGS_flat;
 	qlThumbnail.windowName = "Thumnail";
 	qlMain.windowName = "Main";
+	qlHistogram1.windowName = "Histogram I1";
+	qlHistogram2.windowName = "Histogram Main";
 	main_width = 512;
 	main_height = 512;
 
@@ -229,6 +236,9 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 	nef = dcraw::readNEF0(input); //36M,SSDからで0.90s
 	cout << nef.getEXIFHeader() << endl;
 	cout << nef.getEXIFInfo() << getImageInfo(nef.bayer) << endl;
+	double min_value, max_value;
+	minMaxLoc(nef.bayer, &min_value, &max_value);
+	cout << min_value << " " << max_value << endl;
 	I0 = A.bayerToRGB< T >(nef.bayer); //0.15s 36M as float from SDD
 
 	//WB補正
@@ -268,6 +278,7 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 	initializeImage();
 	qlMain.wx = D1_thumbnail.cols + qlMain.wxMargin;
 	setMainPosition(I1.cols / 2, I1.rows / 2, 1);
+	//D1_thumbnail.rows + qlHistogram.wyMargin;
 	update();
 	//qlThumbnail.wait();
 
@@ -299,7 +310,6 @@ void QuickLookNEF< T >::createNormalizedImage() {
 	A.normalize(nI1, min0, max0, gamma);
 	D1 = nI1;
 	resize(D1, D1_thumbnail, Size(), factor_thumbnail, factor_thumbnail);
-
 	return;
 }
 template < typename T >
@@ -343,13 +353,26 @@ void QuickLookNEF<T>::initializeImage() {
 	max0 = mean0.val[1] + display_sigma * stddev0.val[1];
 	gamma_flag = false;
 	createNormalizedImage();
+	D1_histogram1 = hist(I1, 256, 256);
 }
 
 template < typename T >
 void QuickLookNEF<T>::update() {
 	createDisplayImages();
+	D1_histogram2 = hist(D1_main, 256, 256, 8);
+
 	qlThumbnail.addS(D1_thumbnail_framed);
 	qlMain.addS(D1_main, main_scale);
+
+	qlHistogram1.wx = D1_thumbnail.cols + qlMain.wxMargin * 2 + D1_main.rows;
+	qlHistogram2.wx = qlHistogram1.wx;
+	qlHistogram1.wy = qlMain.wy;
+	qlHistogram2.wy = qlHistogram1.wy + D1_histogram1.rows + qlHistogram1.wxMargin ;
+
+	cout << qlHistogram1.wx << " " << qlHistogram1.wy << endl;
+	cout << qlHistogram2.wx << " " << qlHistogram2.wy << endl;
+	qlHistogram1.addS(D1_histogram1);
+	qlHistogram2.addS(D1_histogram2);
 	return;
 }
 
