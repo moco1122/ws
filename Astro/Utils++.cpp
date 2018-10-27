@@ -30,6 +30,13 @@ int round(double d) { return static_cast<int>(d + 0.5); }
 //#include <direct.h>
 #endif
 
+//#include <filesystem>
+//
+//namespace fs = std::filesystem ;
+
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
 //cv::format()のためにインクルードが必要
 #include <opencv2/opencv.hpp>
 #include "Utils++.hpp"
@@ -165,7 +172,8 @@ vector<string> getImageFilesList(string path) {
 		entry = readdir(dp);
 		if (entry != NULL) {
 			//			std::cout << path << entry->d_name << std::endl;
-			if(strstr(entry->d_name, ".jpg") != NULL || strstr(entry->d_name, ".png") != NULL) {
+			if(strstr(entry->d_name, ".jpg") != NULL || strstr(entry->d_name, ".png") ||
+					strstr(entry->d_name, ".NEF" ) != NULL || strstr(entry->d_name, ".nef" ) != NULL) {
 //				image_files.push_back(cv::format("%s/%s", path.c_str(), entry->d_name));
 				image_files.push_back(cv::format("%s%s", path.c_str(), entry->d_name));
 			}

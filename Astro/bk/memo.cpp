@@ -50,5 +50,16 @@ int main(int argc, char **argv) {
 	Mat_<Vec3f> fS = bayerToRGB<float>(nef.bayer, offset, gain, rGain, bGain);
 	cout << elapsed_time() << "s" << endl; //floatの方が2倍高速
 
+	//そーと
+	//		for(unsigned int i = 0; i < filenames.size(); i++) {
+	//			cout << ts[i] << std::endl;
+	//		}
+	//
+	//		std::sort(ts.begin(), ts.end());
+	//		cout << "#after sort" << std::endl;
+	//		for(unsigned int i = 0; i < filenames.size(); i++) {
+	//			cout << ts[i] << std::endl;
+	//		}
+
 	return 0;
 }

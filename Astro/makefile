@@ -59,7 +59,7 @@ mkflat : mkflat.cpp makefile ${LIB_MYCV}
 	${CXX} ${CXX_FLAG} -o $@ mkflat.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
 	cp $@ ../bin/
 qlnef : qlnef.cpp makefile ${LIB_MYCV} Astro.hpp
-	${CXX} ${CXX_FLAG} -o $@ qlnef.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
+	${CXX} ${CXX_FLAG} -o $@ qlnef.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG} -lboost_filesystem
 	cp $@ ../bin/
 
 drawbox : drawbox.cpp makefile ${LIB_MYCV} 

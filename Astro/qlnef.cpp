@@ -13,6 +13,12 @@
 #include "MatUtils.hpp"
 #include "QuickLook.hpp"
 
+#include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+namespace fs = boost::filesystem;
+using boost::posix_time::ptime;
+
 using std::string;
 using std::cout;
 using std::endl;
@@ -22,7 +28,8 @@ using namespace mycv;
 
 #include "Astro.hpp"
 
-DEFINE_string(i, "unknown.nef", "Input NEF file.");
+DEFINE_string(i, "last.nef", "Input NEF file.");
+DEFINE_int32(l, 0, "Last lth file for default input");
 DEFINE_string(flat, "flat.tif", "Flat file.");
 
 DEFINE_int32(D, 0, "Display scale");
@@ -231,6 +238,36 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 	dark_mode = false;
 	drawing_box = false;
 	box = cv::Rect();
+
+	if(input == "last.nef") {
+		vector<string> filenames = getImageFilesList("./");
+		vector< pair<ptime, string> > time_filenames;
+		for(unsigned int i = 0; i < filenames.size(); i++) {
+			//cout << i << " " << filenames[i] << " ";
+		    try {
+		        const fs::path path(filenames[i]);
+		        const ptime time = boost::posix_time::from_time_t(fs::last_write_time(path));
+		        time_filenames.push_back(make_pair(time, filenames[i]));
+		    }
+		    catch (fs::filesystem_error& ex) {
+		        std::cout << "エラー発生！ : " << ex.what() << std::endl;
+		    }
+
+		}
+
+//		std::sort(time_filenames.begin(), time_filenames.end(), greater< pair< ptime, string > >());
+		std::sort(time_filenames.begin(), time_filenames.end());
+//		cout << "#after sort" << std::endl;
+//		for(auto time_filename:time_filenames) {
+//			cout << time_filename.second << " " << time_filename.first << endl;
+//		}
+
+		input = time_filenames[time_filenames.size() - 1 + FLAGS_l].second;
+		ptime time = time_filenames[time_filenames.size() - 1 + FLAGS_l].first;
+		cout << cv::format("#Selected %dth latest captured file : %s ", FLAGS_l, input.c_str()) << time << endl;
+		cout << "not imp" << endl;
+		exit(0);
+	}
 
 	//-iで指定したNEFを読んで現像
 	nef = dcraw::readNEF0(input); //36M,SSDからで0.90s

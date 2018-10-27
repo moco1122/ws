@@ -27,3 +27,5 @@ Wno_DCRAW+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-o
 Wno_DCRAW+=-Wno-string-plus-int -Wno-unused-variable -Wno-unused-value
 Wno_DCRAW+=-Wno-narrowing -Wno-overflow -fpermissive -Wno-write-strings
 #-Wno-literal-suffix
+
+Wno_FLAG=-Wno-c++11-extensions
