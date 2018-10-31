@@ -30,6 +30,8 @@ using namespace mycv;
 
 DEFINE_string(i, "unknown.nef", "Input NEF file.");
 DEFINE_string(o, "flat.tif", "Output tiff file.");
+DEFINE_int32(l, (int)0, "Last lth file for default input");
+
 DEFINE_double(sigma, 5.0, "Smoothing sigma");
 //フィルタ無しだと5.0くらいまでは問題無し
 //6を越えると等方的な平滑化では段差が見える
@@ -67,6 +69,13 @@ FlatMaker< T >::FlatMaker(string _input, string _output) {
 	input = _input;
 	output = _output;
 	smooth_sigma = FLAGS_sigma;
+
+	if(input == "last.nef") {
+		input = getLatestNEFFile("./", FLAGS_l);
+	}
+	else {
+		cout << "#input : " << input << endl;
+	}
 
 	//36M,SSDからで0.90s
 	nef = dcraw::readNEF0(input);

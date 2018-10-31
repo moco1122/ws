@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #ifdef VS2012
 #include <windows.h>
@@ -30,19 +31,28 @@ int round(double d) { return static_cast<int>(d + 0.5); }
 //#include <direct.h>
 #endif
 
-//#include <filesystem>
-//
-//namespace fs = std::filesystem ;
-
+#ifdef USE_BOOST
+//OSXでは重くないのでOK
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 namespace fs = boost::filesystem;
+using boost::posix_time::ptime;
+#else
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+//using std::experimental::posix_time::ptime;
+using ptime = fs::file_time_type;
+#endif
+
+using namespace std;
+namespace chrono = std::chrono;
 
 //cv::format()のためにインクルードが必要
 #include <opencv2/opencv.hpp>
 #include "Utils++.hpp"
 
 namespace mycv {
-using namespace std;
 
 //型のサイズが想定と異なっていたら終了する。
 void checkSizeOf() {
@@ -447,6 +457,68 @@ char **parseArgsFile(int* argc,char **argv) {
 	*argc = (int)args.size();
 	return(extendedArgv);
 }
+
+//dirでタイムスタンプが最後からlast番目のファイル名を返す
+string getLatestNEFFile(const string dir, int last = 0) {
+	string latest_filename;
+	vector<string> filenames = getImageFilesList(dir);
+
+#ifdef USE_BOOST
+		vector< pair<ptime, string> > time_filenames;
+		for(unsigned int i = 0; i < filenames.size(); i++) {
+			//cout << i << " " << filenames[i] << " ";
+			try {
+				const fs::path path(filenames[i]);
+				const ptime time = boost::posix_time::from_time_t(fs::last_write_time(path));
+				time_filenames.push_back(make_pair(time, filenames[i]));
+			}
+			catch (fs::filesystem_error& ex) {
+				std::cout << "エラー発生！ : " << ex.what() << std::endl;
+			}
+		}
+		//		std::sort(time_filenames.begin(), time_filenames.end(), greater< pair< ptime, string > >());
+		std::sort(time_filenames.begin(), time_filenames.end());
+		cout << "#after sort" << std::endl;
+		for(auto time_filename:time_filenames) {
+			auto sec = chrono::duration_cast<chrono::seconds>(.time_since_epoch());
+			std::time_t t = sec.count();
+			const tm* lt = std::localtime(&t);
+			cout << time_filename.second << " : " << time_filename.first << endl;
+
+			//cout << time_filename.first << endl;
+		}
+		latest_filename = time_filenames[time_filenames.size() - 1 + last].second;
+		ptime time = time_filenames[time_filenames.size() - 1 + last].first;
+		cout << cv::format("#Selected %dth latest captured file : %s ",
+				last, latest_filename.c_str()) << time << endl;
+
+#else
+		vector< pair<ptime, string> > time_filenames;
+		for(unsigned int i = 0; i < filenames.size(); i++) {
+			const ptime time = fs::last_write_time(filenames[i]);
+			time_filenames.push_back(make_pair(time, filenames[i]));
+		}
+
+		//		std::sort(time_filenames.begin(), time_filenames.end(), greater< pair< ptime, string > >());
+		std::sort(time_filenames.begin(), time_filenames.end());
+//		cout << "#after sort" << std::endl;
+//		for(auto time_filename:time_filenames) {
+//			auto sec = chrono::duration_cast<chrono::seconds>(time_filename.first.time_since_epoch());
+//			std::time_t t = sec.count();
+//			const tm* lt = std::localtime(&t);
+//			std::cout << time_filename.second << " : " << std::put_time(lt, "%c") << std::endl;
+//		}
+		latest_filename = time_filenames[time_filenames.size() - 1 + last].second;
+		auto sec = chrono::duration_cast<chrono::seconds>(time_filenames[time_filenames.size() - 1 + last].first.time_since_epoch());
+		std::time_t t = sec.count();
+		const tm* lt = std::localtime(&t);
+		cout << cv::format("#Selected %dth latest captured file : %s : ",
+				last, latest_filename.c_str()) << std::put_time(lt, "%c") << endl;
+#endif
+
+	return latest_filename;
+}
+
 
 //メモリ使用量とユーザ時間を表す文字列を返す。
 string getTimeInfo() {

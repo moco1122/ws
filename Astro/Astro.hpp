@@ -40,7 +40,8 @@ DEFINE_string(wb, "1.0,1.0", "WB rGain,bGain");
 DEFINE_bool(awb, true, "Auto White Balance");
 
 
-template< typename T > Mat3b hist(Mat_< T > &I0);
+//template< typename T > Mat3b hist(Mat_< T > &I0,
+//		const int ch_width, const int ch_height, int bit_depth);
 
 //天体写真用の画像処理を行うクラス
 //複数画像処理で共通するデータを内部に保持
@@ -180,7 +181,7 @@ Mat3b hist(Mat_< T > &I0, const int ch_width = 1024, const int ch_height = 200, 
 	vector< Mat1b > vH(3);
 	vector< Mat > hists(3);
 	const int hdims[] = {ch_width}; // 次元毎のヒストグラムサイズ
-	const float hranges[] = {0, (1 << bit_depth)-1};
+	const float hranges[] = {0, (float)((1 << bit_depth) - 1)};
 	const float* ranges[] = {hranges}; // 次元毎のビンの下限上限
 	vector<double> max_vals(3);
 

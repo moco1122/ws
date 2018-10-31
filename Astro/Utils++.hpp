@@ -5,6 +5,7 @@
  */
 #ifndef UTILSPP_HPP_
 #define UTILSPP_HPP_
+#include <string>
 //#define VS2012
 
 //C++17からfilesystemが入るらしいが、まだ使えない場合が多そうなので保留 20180710
@@ -57,6 +58,8 @@ vector<T> parseCoefficients(string kernelArg);
 template <class T>
 string vectorToString(vector<T> v);
 char **parseArgsFile(int* argc,char **argv);
+
+string getLatestNEFFile(const string dir, int last);
 
 //VisualStudioにない関数をどうにかする
 #ifdef VS2012

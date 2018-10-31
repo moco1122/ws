@@ -6,30 +6,26 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <chrono>
 
 #include <gflags/gflags.h>
 #include <opencv2/opencv.hpp>
 #include "dcrawFunc.hpp"
 #include "MatUtils.hpp"
 #include "QuickLook.hpp"
-
-#include <boost/filesystem.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-namespace fs = boost::filesystem;
-using boost::posix_time::ptime;
-
-using std::string;
-using std::cout;
-using std::endl;
-
+//
+//using std::string;
+//using std::cout;
+//using std::endl;/using namespace std;
+using namespace std;
 using namespace cv;
 using namespace mycv;
 
 #include "Astro.hpp"
 
-DEFINE_string(i, "last.nef", "Input NEF file.");
-DEFINE_int32(l, 0, "Last lth file for default input");
+DEFINE_string(i, (std::string)"last.nef", "Input NEF file.");
+DEFINE_int32(l, (int)0, "Last lth file for default input");
 DEFINE_string(flat, "flat.tif", "Flat file.");
 
 DEFINE_int32(D, 0, "Display scale");
@@ -116,7 +112,7 @@ private:
 	Mat3b D1; //表示用の元画像
 
 public:
-	QuickLookNEF(string _input);
+	QuickLookNEF(string _input); // @suppress("解決できない型")
 	~QuickLookNEF();
 
 	void initializeImage();
@@ -133,8 +129,8 @@ template < typename T >
 void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 	//cout << __func__ << endl;
 	QuickLookNEF<T> *qlnef = reinterpret_cast< QuickLookNEF<T> *>(data);
-//	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
-//	QuickLook *qlMain = &(qlnef->qlMain);
+	//	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
+	//	QuickLook *qlMain = &(qlnef->qlMain);
 
 	Scalar tmean, tstddev;
 
@@ -196,8 +192,8 @@ void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 template < typename T >
 void cbMouseMain(int event,int x,int y,int flag,void *data) {
 	QuickLookNEF<T> *qlnef = reinterpret_cast< QuickLookNEF<T> *>(data);
-//	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
-//	QuickLook *qlMain = &(qlnef->qlMain);
+	//	QuickLook *qlThumbnail = &(qlnef->qlThumbnail);
+	//	QuickLook *qlMain = &(qlnef->qlMain);
 	int new_xc, new_yc;
 	//	string message;
 	//cout << flag << endl;
@@ -240,33 +236,10 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 	box = cv::Rect();
 
 	if(input == "last.nef") {
-		vector<string> filenames = getImageFilesList("./");
-		vector< pair<ptime, string> > time_filenames;
-		for(unsigned int i = 0; i < filenames.size(); i++) {
-			//cout << i << " " << filenames[i] << " ";
-		    try {
-		        const fs::path path(filenames[i]);
-		        const ptime time = boost::posix_time::from_time_t(fs::last_write_time(path));
-		        time_filenames.push_back(make_pair(time, filenames[i]));
-		    }
-		    catch (fs::filesystem_error& ex) {
-		        std::cout << "エラー発生！ : " << ex.what() << std::endl;
-		    }
-
-		}
-
-//		std::sort(time_filenames.begin(), time_filenames.end(), greater< pair< ptime, string > >());
-		std::sort(time_filenames.begin(), time_filenames.end());
-//		cout << "#after sort" << std::endl;
-//		for(auto time_filename:time_filenames) {
-//			cout << time_filename.second << " " << time_filename.first << endl;
-//		}
-
-		input = time_filenames[time_filenames.size() - 1 + FLAGS_l].second;
-		ptime time = time_filenames[time_filenames.size() - 1 + FLAGS_l].first;
-		cout << cv::format("#Selected %dth latest captured file : %s ", FLAGS_l, input.c_str()) << time << endl;
-		cout << "not imp" << endl;
-		exit(0);
+		input = getLatestNEFFile("./", FLAGS_l);
+	}
+	else {
+		cout << "#input : " << input << endl;
 	}
 
 	//-iで指定したNEFを読んで現像
@@ -406,8 +379,8 @@ void QuickLookNEF<T>::update() {
 	qlHistogram1.wy = qlMain.wy;
 	qlHistogram2.wy = qlHistogram1.wy + D1_histogram1.rows + qlHistogram1.wxMargin ;
 
-	cout << qlHistogram1.wx << " " << qlHistogram1.wy << endl;
-	cout << qlHistogram2.wx << " " << qlHistogram2.wy << endl;
+//	cout << qlHistogram1.wx << " " << qlHistogram1.wy << endl;
+//	cout << qlHistogram2.wx << " " << qlHistogram2.wy << endl;
 	qlHistogram1.addS(D1_histogram1);
 	qlHistogram2.addS(D1_histogram2);
 	return;

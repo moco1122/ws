@@ -9,7 +9,7 @@ export CPLUS_INCLUDE_PATH=${INCL_CV}:${INCL_GF}:${INCL_R}
 export LIBRARY_PATH=/usr/local/lib:${CV_LIB}:${GF_LIB}:${R_LIB}/RInside/lib
 
 #LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} ${R_LD_FLAG} -ltiff
-LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} -ltiff
+LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} -ltiff ${BOOST_LD_FLAG}
 
 LIB_MYCV=libmycv.a
 OBJ_MYCV=obj/Utils++.o obj/MatUtils.o obj/QuickLook.o
@@ -59,7 +59,7 @@ mkflat : mkflat.cpp makefile ${LIB_MYCV}
 	${CXX} ${CXX_FLAG} -o $@ mkflat.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
 	cp $@ ../bin/
 qlnef : qlnef.cpp makefile ${LIB_MYCV} Astro.hpp
-	${CXX} ${CXX_FLAG} -o $@ qlnef.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG} -lboost_filesystem
+	${CXX} ${CXX_FLAG} -o $@ qlnef.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
 	cp $@ ../bin/
 
 drawbox : drawbox.cpp makefile ${LIB_MYCV} 
