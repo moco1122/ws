@@ -19,6 +19,7 @@
 #include "MatUtils.hpp"
 #include "QuickLook.hpp"
 
+using namespace std;
 using std::string;
 using std::cout;
 using std::endl;

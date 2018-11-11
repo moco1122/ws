@@ -34,6 +34,8 @@ DEFINE_double(Ds, 3.0, "Display sigma");
 DEFINE_int32(H, 0, "Display histogram");
 DEFINE_double(gamma, 2.2, "Display gamma");
 
+DEFINE_bool(S, true, "Start as Star check mode.");
+
 //コールバック関数はメンバ関数にできない?
 //cb()でクリックDownによりボックス描画モードに入って、
 //モード中はwait()で一時画像に矩形を描写・更新
@@ -79,6 +81,8 @@ public:
 	Rect dark_box;
 	Mat_< Vec< T, 3 > > I1; //フラット補正後の画像
 	double min0, max0;
+
+	bool starcheck_mode;
 
 	Mat3b D1_thumbnail; //サムネイル
 	Mat3b D1_thumbnail_framed; //サムネイル+枠
@@ -235,6 +239,8 @@ QuickLookNEF< T >::QuickLookNEF(string _input) {
 	drawing_box = false;
 	box = cv::Rect();
 
+	starcheck_mode = FLAGS_S;
+
 	if(input == "last.nef") {
 		input = getLatestNEFFile("./", FLAGS_l);
 	}
@@ -341,17 +347,51 @@ void QuickLookNEF< T >::createDisplayImages() {
 	if(main_y2 > D1.rows) { main_y2 = D1.rows; }
 
 	D1_thumbnail_framed = D1_thumbnail.clone();
-	cv::rectangle(D1_thumbnail_framed,
-			Point(main_x1 * factor_thumbnail, main_y1 * factor_thumbnail),
-			Point(main_x2 * factor_thumbnail, main_y2 * factor_thumbnail), Scalar(0, 200, 0), 1, 4);
-	if(box.width != 0 && box.height != 0) {
+	if(starcheck_mode == false) {
 		cv::rectangle(D1_thumbnail_framed,
-				cv::Point2d(box.x * factor_thumbnail, box.y * factor_thumbnail),
-				cv::Point2d((box.x + box.width) * factor_thumbnail, (box.y + box.height) * factor_thumbnail),
-				Scalar(0, 200, 200), 1, 4);
-	}
+				Point(main_x1 * factor_thumbnail, main_y1 * factor_thumbnail),
+				Point(main_x2 * factor_thumbnail, main_y2 * factor_thumbnail), Scalar(0, 200, 0), 1, 4);
+		if(box.width != 0 && box.height != 0) {
+			cv::rectangle(D1_thumbnail_framed,
+					cv::Point2d(box.x * factor_thumbnail, box.y * factor_thumbnail),
+					cv::Point2d((box.x + box.width) * factor_thumbnail, (box.y + box.height) * factor_thumbnail),
+					Scalar(0, 200, 200), 1, 4);
+		}
 
-	D1_main = D1(Range(main_y1, main_y2), Range(main_x1, main_x2));
+		D1_main = D1(Range(main_y1, main_y2), Range(main_x1, main_x2));
+	}
+	else {
+		cv::rectangle(D1_thumbnail_framed,
+				Point(main_x1 * factor_thumbnail, main_y1 * factor_thumbnail),
+				Point(main_x2 * factor_thumbnail, main_y2 * factor_thumbnail), Scalar(0, 200, 0), 1, 4);
+		if(box.width != 0 && box.height != 0) {
+			cv::rectangle(D1_thumbnail_framed,
+					cv::Point2d(box.x * factor_thumbnail, box.y * factor_thumbnail),
+					cv::Point2d((box.x + box.width) * factor_thumbnail, (box.y + box.height) * factor_thumbnail),
+					Scalar(0, 200, 200), 1, 4);
+		}
+
+		int star_mlen = 7;
+		int star_nlen = 5;
+		int star_size = 400;
+
+		cout << getImageInfo(D1) << endl;
+		for(int n = 0; n < star_nlen; n++) {
+			for(int m = 0; m < star_mlen; m++) {
+				int star_x1 = D1.cols / 2 - star_mlen / 2.0 * star_size + m * star_size;
+				int star_y1 = D1.rows / 2 - star_nlen / 2.0 * star_size + n * star_size;
+				int star_x2 = star_x1 + star_size;
+				int star_y2 = star_y1 + star_size;
+
+				cv::rectangle(D1_thumbnail_framed,
+						Point(star_x1 * factor_thumbnail, star_y1 * factor_thumbnail),
+						Point(star_x2 * factor_thumbnail, star_y2 * factor_thumbnail), Scalar(200, 200, 0), 1, 4);
+			}
+		}
+
+		D1_main = D1(Range(main_y1, main_y2), Range(main_x1, main_x2));
+
+	}
 
 	return;
 }
@@ -379,8 +419,8 @@ void QuickLookNEF<T>::update() {
 	qlHistogram1.wy = qlMain.wy;
 	qlHistogram2.wy = qlHistogram1.wy + D1_histogram1.rows + qlHistogram1.wxMargin ;
 
-//	cout << qlHistogram1.wx << " " << qlHistogram1.wy << endl;
-//	cout << qlHistogram2.wx << " " << qlHistogram2.wy << endl;
+	//	cout << qlHistogram1.wx << " " << qlHistogram1.wy << endl;
+	//	cout << qlHistogram2.wx << " " << qlHistogram2.wy << endl;
 	qlHistogram1.addS(D1_histogram1);
 	qlHistogram2.addS(D1_histogram2);
 	return;
@@ -424,6 +464,13 @@ void QuickLookNEF<T>::wait() {
 			break;
 		case 'd' : //dark area
 			dark_mode = true;
+			cout << __func__ << " " << endl;
+			break;
+			//		case 'p' :
+			//			imwrite("ql.tif",Ds[iCurrentWindow]);
+			//			break;
+		case 's' : //star check mode
+			starcheck_mode = !starcheck_mode;
 			cout << __func__ << " " << endl;
 			break;
 			//		case 'p' :
