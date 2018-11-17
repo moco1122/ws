@@ -3,7 +3,7 @@ export PATH := /usr/local/bin/:$(PATH)
 #export PKG_CONFIG_PATH := /usr/local/opt/opencv@2/lib/pkgconfig:/usr/local/opt/gflags/lib/pkgconfig
 
 CXX=g++
-CXX_FLAG=-Wall -O3
+CXX_FLAG=-Wall -O3 -DUSE_BOOST
 
 #INCL_CV=`pkg-config --cflags opencv`
 #LIBS_CV=`pkg-config --libs opencv` -ljpeg -ljasper -llcms2
@@ -30,3 +30,5 @@ Wno_DCRAW+=-Wno-narrowing -Wno-overflow -fpermissive -Wno-write-strings
 BOOST_LD_FLAG=-lboost_filesystem
 
 Wno_FLAG=-Wno-c++11-extensions
+
+USE_BOOST=ON

@@ -479,14 +479,14 @@ string getLatestNEFFile(const string dir, int last = 0) {
 		//		std::sort(time_filenames.begin(), time_filenames.end(), greater< pair< ptime, string > >());
 		std::sort(time_filenames.begin(), time_filenames.end());
 		cout << "#after sort" << std::endl;
-		for(auto time_filename:time_filenames) {
-			auto sec = chrono::duration_cast<chrono::seconds>(.time_since_epoch());
-			std::time_t t = sec.count();
-			const tm* lt = std::localtime(&t);
-			cout << time_filename.second << " : " << time_filename.first << endl;
-
-			//cout << time_filename.first << endl;
-		}
+//		for(auto time_filename:time_filenames) {
+//			auto sec = chrono::duration_cast<chrono::seconds>(time_filename.first.time_since_epoch());
+//			std::time_t t = sec.count();
+//			const tm* lt = std::localtime(&t);
+//			cout << time_filename.second << " : " << time_filename.first << endl;
+//
+//			//cout << time_filename.first << endl;
+//		}
 		latest_filename = time_filenames[time_filenames.size() - 1 + last].second;
 		ptime time = time_filenames[time_filenames.size() - 1 + last].first;
 		cout << cv::format("#Selected %dth latest captured file : %s ",
