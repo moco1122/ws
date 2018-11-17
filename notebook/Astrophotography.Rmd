@@ -1,0 +1,19 @@
+---
+title: "Astrophotography"
+author: "Atsushi Kawai"
+date: "2018/11/18"
+output: html_document
+---
+
+天体写真撮影用のノート
+
+#暫定方針
++ 他のノートに検討を分離する場合はファイル名を記す。
+
+
+
+#ToDo
+
+#やったこと
+
+#ログ
