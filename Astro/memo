@@ -1,3 +1,4 @@
+
 git --version
 git config --global user.name "kawai@tonari"
 git config --global user.email "Atsushi.Kawai@nikon.com"
