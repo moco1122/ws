@@ -34,7 +34,7 @@ DEFINE_double(Ds, 3.0, "Display sigma");
 DEFINE_int32(H, 0, "Display histogram");
 DEFINE_double(gamma, 2.2, "Display gamma");
 
-DEFINE_bool(S, true, "Start as Star check mode.");
+DEFINE_bool(S, false, "Start as Star check mode.");
 
 //コールバック関数はメンバ関数にできない?
 //cb()でクリックDownによりボックス描画モードに入って、

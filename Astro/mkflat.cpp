@@ -29,7 +29,7 @@ using namespace mycv;
 
 #include "Astro.hpp"
 
-DEFINE_string(i, "unknown.nef", "Input NEF file.");
+DEFINE_string(i, "last.nef", "Input NEF file.");
 DEFINE_string(o, "flat.tif", "Output tiff file.");
 DEFINE_int32(l, (int)0, "Last lth file for default input");
 
