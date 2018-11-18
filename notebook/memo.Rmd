@@ -1,0 +1,37 @@
+---
+title: "memo"
+author: "Atsushi Kawai"
+date: "2018/11/18"
+output: html_document
+---
+
+その他のメモ
+
+#暫定方針
++ Windows/Macで共有するため、GitHubで管理する
+    + OmniOutlinerが便利な場合はそちらを優先
++ 他のノートに検討を分離する場合はファイル名を記す。
+
+***
+
+#TODO
++ OmniOutlinerのファイルをGitHubに移動
+
+***
+
+#GitHub関連
+
+ユーザ名・パスワードを聞かれる場合は
+~/.netrcにユーザ名/パスワードを書く
+https://qiita.com/azusanakano/items/8dc1d7e384b00239d4d9
+
+```
+#~/.netrc
+machine github.com
+login username
+password xxxxxxx
+```
+
+
+
+#処理済み
