@@ -32,6 +32,8 @@ login username
 password xxxxxxx
 ```
 
-
+芝が生えない場合
+メールアドレスが間違っているとダメらしい
+https://qiita.com/endo_hizumi/items/49edf021b8b9189b4f88
 
 #処理済み
