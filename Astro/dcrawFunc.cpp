@@ -9771,7 +9771,7 @@ NEF readNEF0 (string fileName, bool exif_only){
 	targv[2] = "-E";
 	targv[3] = fileName.c_str();
 	dcraw::NEF nef = dcraw::readNEF00(targc, targv, exif_only);
-	if(nef.width <= 0) {
+	if(exif_only == false && nef.width <= 0) {
 		cout << "Can't read " << fileName << endl; exit(0);
 	}
 	return(nef);
