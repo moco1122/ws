@@ -57,8 +57,9 @@ int main(int argc, char **argv) {
 			dent = readdir(dp);
 			if (dent != NULL) {
 				string name = dent->d_name;
-				if(name != "." && name != "..")
-				inputs.push_back(cv::format("%s/%s", FLAGS_i.c_str(), name.c_str()));
+				if(name.substr(0, 1) != ".") {
+					inputs.push_back(cv::format("%s/%s", FLAGS_i.c_str(), name.c_str()));
+				}
 				//	        	cout << dent->d_name << endl;
 			}
 		} while(dent != NULL);
