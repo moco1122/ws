@@ -21,12 +21,14 @@ inline double elapsed_time() {
 #include <gflags/gflags.h>
 #include <opencv2/opencv.hpp>
 #include "dcrawFunc.hpp"
+#include "Utils++.cpp"
 
 using std::string;
 using std::cout;
 using std::endl;
 
 using namespace cv;
+using namespace mycv;
 
 DEFINE_string(i, "unknown.nef", "Input NEF file.");
 
@@ -49,25 +51,26 @@ int main(int argc, char **argv) {
 
 	//NEFを読み込み
 	vector<string> inputs;
+	inputs = getImageFilesList(FLAGS_i);
 
-	DIR* dp = opendir(FLAGS_i.c_str());
-	if (dp != NULL) {
-		struct dirent* dent;
-		do{
-			dent = readdir(dp);
-			if (dent != NULL) {
-				string name = dent->d_name;
-				if(name.substr(0, 1) != ".") {
-					inputs.push_back(cv::format("%s/%s", FLAGS_i.c_str(), name.c_str()));
-				}
-				//	        	cout << dent->d_name << endl;
-			}
-		} while(dent != NULL);
-		closedir(dp);
-	}
-	else {
-		inputs.push_back(FLAGS_i);
-	}
+//	DIR* dp = opendir(FLAGS_i.c_str());
+//	if (dp != NULL) {
+//		struct dirent* dent;
+//		do{
+//			dent = readdir(dp);
+//			if (dent != NULL) {
+//				string name = dent->d_name;
+//				if(name.substr(0, 1) != ".") {
+//					inputs.push_back(cv::format("%s/%s", FLAGS_i.c_str(), name.c_str()));
+//				}
+//				//	        	cout << dent->d_name << endl;
+//			}
+//		} while(dent != NULL);
+//		closedir(dp);
+//	}
+//	else {
+//		inputs.push_back(FLAGS_i);
+//	}
 
 	//	EXIFリスト表示
 	cout << dcraw::NEF::getEXIFHeader() << endl;

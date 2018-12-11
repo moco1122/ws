@@ -59,6 +59,7 @@ template <class T>
 string vectorToString(vector<T> v);
 char **parseArgsFile(int* argc,char **argv);
 
+vector<string> sortFileListByTime(vector<string> files);
 string getLatestNEFFile(const string dir, int last);
 
 //VisualStudioにない関数をどうにかする
