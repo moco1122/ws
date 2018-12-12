@@ -53,25 +53,6 @@ int main(int argc, char **argv) {
 	vector<string> inputs;
 	inputs = getImageFilesList(FLAGS_i);
 
-//	DIR* dp = opendir(FLAGS_i.c_str());
-//	if (dp != NULL) {
-//		struct dirent* dent;
-//		do{
-//			dent = readdir(dp);
-//			if (dent != NULL) {
-//				string name = dent->d_name;
-//				if(name.substr(0, 1) != ".") {
-//					inputs.push_back(cv::format("%s/%s", FLAGS_i.c_str(), name.c_str()));
-//				}
-//				//	        	cout << dent->d_name << endl;
-//			}
-//		} while(dent != NULL);
-//		closedir(dp);
-//	}
-//	else {
-//		inputs.push_back(FLAGS_i);
-//	}
-
 	//	EXIFリスト表示
 	cout << dcraw::NEF::getEXIFHeader() << endl;
 	start_time();
