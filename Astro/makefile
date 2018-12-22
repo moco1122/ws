@@ -11,6 +11,14 @@ export LIBRARY_PATH=/usr/local/lib:${CV_LIB}:${GF_LIB}:${R_LIB}/RInside/lib
 #LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} ${R_LD_FLAG} -ltiff
 LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} -ltiff ${BOOST_LD_FLAG}
 
+CXX_FLAG=-O0 -DUSE_BOOST
+# -g -fsanitize=address 
+CXX_FLAG=-DUSE_BOOST
+# -w -g -fno-omit-frame-pointer
+CXX_FLAG=-DUSE_BOOST -w -g -fsanitize=address -fno-omit-frame-pointer
+# -fsanitize=leak
+#
+
 LIB_MYCV=libmycv.a
 OBJ_MYCV=obj/Utils++.o obj/MatUtils.o obj/QuickLook.o
 # obj/Astro.o templateがあるのでだめ
@@ -18,14 +26,14 @@ ${LIB_MYCV} : ${OBJ_MYCV} obj/dcrawFunc.o
 	ar r $@ ${OBJ_MYCV} obj/dcrawFunc.o 
 	ranlib $@
 ${OBJ_MYCV} : 
-	g++ ${CXX_FLAG} -o $@ -c ${@:obj/%.o=%.cpp} -Wno-format
+	${CXX} ${CXX_FLAG} -o $@ -c ${@:obj/%.o=%.cpp} -Wno-format -std=c++17
 obj/Utils++.o : Utils++.cpp Utils++.hpp 
 obj/MatUtils.o : MatUtils.cpp MatUtils.hpp 
 obj/QuickLook.o : QuickLook.cpp QuickLook.hpp
 #obj/Astro.o : Astro.cpp Astro.hpp
 
 obj/dcrawFunc.o : dcrawFunc.cpp dcrawFunc.hpp
-	g++ -O3 -o $@ -c ${@:obj/%.o=%.cpp} ${Wno_DCRAW}
+	${CXX} -O3 -o $@ -c ${@:obj/%.o=%.cpp} ${Wno_DCRAW}
 	
 test : test.cpp makefile ${LIB_MYCV}
 	g++ -O3 -o $@ test.cpp ${LIB_MYCV} ${LD_FLAG}
@@ -69,14 +77,15 @@ drawbox : drawbox.cpp makefile ${LIB_MYCV}
 	${CXX} ${CXX_FLAG} -o $@ drawbox.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
 	cp $@ ../bin/
 
-all : ${LIB_MYCV} listnef mkflat qlnef
+#all : ${LIB_MYCV} listnef mkflat qlnef
+all : ${LIB_MYCV} benchmarknef
 
 check_path :
 	@env | grep ^PATH
 	@env | grep INCLUDE
 	@env | grep LIBRARY
 	@which gcc
-	@which g++
+	@which ${CXX}
 	
 clean : 
 	rm -f *.o obj/*.o *.a listnef mkflat qlnef

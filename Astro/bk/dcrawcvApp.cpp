@@ -1,6 +1,7 @@
 #include <gflags/gflags.h>
 #include <opencv2/opencv.hpp>
-#include "dcrawFunc.cpp"
+
+#include "../dcrawFunc_ori.cpp"
 //	ブロック単位で最大値が正の画素の位置をリスト化
 //	元画像に位置をマークして表示
 //	ImageViewer

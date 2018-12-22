@@ -24,10 +24,10 @@ R_LIB=${R_DIR}/Versions/3.5/Resources/library
 Wno_DCRAW+=-Wno-dangling-else -Wno-constant-conversion -Wno-macro-redefined
 Wno_DCRAW+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-operand
 Wno_DCRAW+=-Wno-string-plus-int -Wno-unused-variable -Wno-unused-value
-Wno_DCRAW+=-Wno-narrowing -Wno-overflow -fpermissive -Wno-write-strings
+Wno_DCRAW+=-Wno-narrowing -Wno-overflow -fpermissive -Wno-write-strings -Wno-shift-negative-value
 #-Wno-literal-suffix
 
-BOOST_LD_FLAG=-lboost_filesystem
+BOOST_LD_FLAG=-lboost_filesystem -lboost_system
 
 Wno_FLAG=-Wno-c++11-extensions
 

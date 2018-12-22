@@ -41,16 +41,26 @@ int main(int argc, char **argv) {
 	start_time();
 	Mat_<unsigned short> sum_bayer;
 	for(auto input : inputs) {
-		dcraw::NEF nef = dcraw::readNEF0(input); //36M,SSDからで0.90s
-		if(FLAGS_type == 1) {
-			//-iで指定したNEFを読んで現像
-			if(sum_bayer.cols == 0) { sum_bayer = nef.bayer.clone(); }
-			else {
-				sum_bayer = sum_bayer + nef.bayer;
-			}
-
-		}
+		//dcraw::NEF
+		nef = dcraw::readNEF0(input); //36M,SSDからで0.90s
+//		cout << __LINE__ << endl;
+//		if(FLAGS_type == 1) {
+//			//-iで指定したNEFを読んで現像
+//			if(sum_bayer.cols == 0) { sum_bayer = nef.bayer.clone(); }
+//			else {
+//				sum_bayer = sum_bayer + nef.bayer;
+//			}
+//
+//		}
+//		cout << __LINE__ << endl;
+//		cout << nef.getEXIFInfo() << endl;
+//		cout << __LINE__ << endl;
+//		cout << __LINE__ << " " << getImageInfo(nef.bayer) << endl;
+//		cout << __LINE__ << " " << elapsed_time() << endl;
+//		cout << __LINE__ << endl;
+//
 		cout << nef.getEXIFInfo() << getImageInfo(nef.bayer) << " " << elapsed_time() << endl;
+//		cout << __LINE__ << endl;
 	}
 
 	return 0;

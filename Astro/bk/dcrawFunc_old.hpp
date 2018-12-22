@@ -1,30 +1,27 @@
 /*
- * dcrawFunc.hpp
- *
- *  Created on: 2016/10/15
- *      Author: kawai
- *
- *  dcrawを元にしたNEF読込クラス
+ * dcrawcv.hpp
  */
 
 #ifndef DCRAWFUNC_HPP_
 #define DCRAWFUNC_HPP_
 //OpenCVとRcppで共通する部分の関数
-//#include <iostream>
+#include <iostream>
 #include <string>
-#include <stdio.h>
+//#include <stdio.h>
 
 #include <opencv2/opencv.hpp>
-#include "Utils++.hpp"
 
 using std::string;
+using std::cout;
+using std::endl;
+
+#include "Utils++.hpp"
 using namespace cv;
 using namespace mycv;
 
 namespace dcraw {
 
 class NEF {
-
 public:
 	string fileName;
 	string date; //class?
@@ -35,10 +32,8 @@ public:
 	float focalLength;
 
 	int status; //dcrawの戻り値
-	//unsigned short *data0;
-	Mat_<unsigned short> bayer;
 	unsigned int width,height;
-	int res;
+	Mat_<unsigned short> bayer;
 
 	NEF() {
 		fileName = "unknown";
@@ -47,19 +42,16 @@ public:
 		ISO = 0;
 		exposure = "0";
 		aperture = 0;
-		focalLength=0;
+		focalLength = 0;
 		status = 0;
 
-		//data0 = 0;
 		width = 0;
 		height = 0;
-		res = 0;
 	};
 	~NEF() {
-		//cout << __func__ << endl;
-		//bayer.release();
-//		if(data0) { free(data0); }
 	};
+
+	void freeData() { return; }
 
 	static string getEXIFHeader() {
 		string header = cv::format("%48s %10s %8s %8s %6s %6s %8s %12s %12s %12s",
@@ -91,34 +83,20 @@ public:
 		return info;
 	}
 
+	//TODO deprecated
 	void printInfoHeader() {
-//		cout << cv::format("%s %s %s %s %s %s %s %s","File","Date","Time","Camera",
-//				"ISO","Exposure","Aperture","f") << endl;
-		printf("%s %s %s %s %s %s %s %s\n","File","Date","Time","Camera",
-				"ISO","Exposure","Aperture","f");
+		cout << getEXIFHeader() << endl;
 	}
 	void printInfo() {
-//		cout << cv::format("%s %s %8s %8d %8s %4.1f %6.1f",
-//				fileName.c_str(),date.c_str(),cameraName.c_str(),
-//				ISO,exposure.c_str(),aperture,focalLength) << endl;
-		printf("%s %s %8s %8d %8s %4.1f %6.1f\n",
-				fileName.c_str(),date.c_str(),cameraName.c_str(),
-				ISO,exposure.c_str(),aperture,focalLength);
+		cout << getEXIFInfo() << endl;
 	}
 
-} ; //class NEF
+} ;
 
-NEF readNEF00 (int argc, const char **argv); //dcrawのコマンドライン引数を入力して処理
-NEF readNEF0 (string fileName); //readNEF00()のWrapper
+NEF readNEF00 (int argc, const char **argv, bool exif_only = false); //dcrawのコマンドライン引数を入力して処理
+NEF readNEF0 (string fileName, bool _exif_only = false); //readNEF00()のWrapper
 //OpenCV,Rcppそれぞれで TYPE readNEF(string fileNmae)を実装
 
-Mat1w NEF_to_bayer(dcraw::NEF &nef);
-Mat1w NEF_to_rggb(dcraw::NEF &nef);
-Mat3d NEF_to_srgb(dcraw::NEF &nef, unsigned short offset, double r_gain, double b_gain);
-Mat1w readNEFAsBayer(string fileName);
-Mat1w readNEFAsRGGB(string fileName);
-Mat3d readNEFAsSRGB(string fileName, unsigned short offset, double r_gain, double b_gain);
+} //end of dcraw
 
-} //namespace dcraw
-
-#endif /* DCRAWFUNC_HPP_ */
+#endif /* DCRAWCUND_HPP_ */

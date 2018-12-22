@@ -185,7 +185,7 @@ vector<string> getImageFilesList(string path) {
 			if(strstr(entry->d_name, ".jpg") != NULL || strstr(entry->d_name, ".png") ||
 					strstr(entry->d_name, ".NEF" ) != NULL || strstr(entry->d_name, ".nef" ) != NULL) {
 //				image_files.push_back(cv::format("%s/%s", path.c_str(), entry->d_name));
-				cout << entry->d_name << endl;
+				//cout << entry->d_name << endl;
 				image_files.push_back(cv::format("%s%s", path.c_str(), entry->d_name));
 			}
 		}
