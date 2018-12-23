@@ -11,11 +11,11 @@ export LIBRARY_PATH=/usr/local/lib:${CV_LIB}:${GF_LIB}:${R_LIB}/RInside/lib
 #LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} ${R_LD_FLAG} -ltiff
 LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} -ltiff ${BOOST_LD_FLAG}
 
-CXX_FLAG=-O0 -DUSE_BOOST
+CXX_FLAG=-O3 -DUSE_BOOST
 # -g -fsanitize=address 
-CXX_FLAG=-DUSE_BOOST
+#CXX_FLAG=-DUSE_BOOST
 # -w -g -fno-omit-frame-pointer
-CXX_FLAG=-DUSE_BOOST -w -g -fsanitize=address -fno-omit-frame-pointer
+#CXX_FLAG=-DUSE_BOOST -w -g -fsanitize=address -fno-omit-frame-pointer
 # -fsanitize=leak
 #
 
@@ -77,8 +77,8 @@ drawbox : drawbox.cpp makefile ${LIB_MYCV}
 	${CXX} ${CXX_FLAG} -o $@ drawbox.cpp ${LIB_MYCV} ${LD_FLAG} ${Wno_FLAG}
 	cp $@ ../bin/
 
-#all : ${LIB_MYCV} listnef mkflat qlnef
-all : ${LIB_MYCV} benchmarknef
+all : ${LIB_MYCV} listnef mkflat qlnef
+#all : ${LIB_MYCV} benchmarknef
 
 check_path :
 	@env | grep ^PATH

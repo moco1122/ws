@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	start_time();
 	for(std::vector<string>::iterator itr = inputs.begin(); itr != inputs.end(); ++itr) {
 		string input = *itr;
-		dcraw::NEF nef = dcraw::readNEF0(input, true);
+		dcraw::NEF nef = dcraw::readNEF0(input);
 		cout << nef.getEXIFInfo() << endl;
 		//	nef.freeData();
 	}

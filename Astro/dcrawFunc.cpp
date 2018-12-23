@@ -3,6 +3,8 @@
  *
  *  Created on: Dec 22, 2018
  *      Author: kawai
+ *
+ *  20181222 NEFの読み込みに必要なコードに絞って、nefをグローバル変数から移動 メモリエラー解消したか？
  */
 
 #include <math.h>
@@ -137,8 +139,7 @@ struct jhead {
 
 void CLASS merror (void *ptr, const char *where)
 {
-	cout << ERROR_LINE << "Not implemented yet." << endl;
-
+	DBG_MESSAGE("Not implemented yet.");
 	//	if (ptr) return;
 	//	fprintf (stderr,_("%s: Out of memory in %s\n"), ifname, where);
 	//	longjmp (failure, 1);
@@ -146,8 +147,7 @@ void CLASS merror (void *ptr, const char *where)
 
 void CLASS derror()
 {
-	cout << ERROR_LINE << "Not implemented yet." << endl;
-
+	DBG_MESSAGE("Not implemented yet.");
 	//	if (!data_error) {
 	//		fprintf (stderr, "%s: ", ifname);
 	//		if (feof(ifp))
@@ -1023,10 +1023,7 @@ void CLASS apply_tiff()
 	for (i=tiff_nifds; i--; )
 		if (tiff_ifd[i].flip) tiff_flip = tiff_ifd[i].flip;
 	if (raw >= 0 && !load_raw) {
-		cerr << ERROR_LINE << "error " << tiff_compress << endl;
-
 		switch (tiff_compress) {
-
 		//		case 32767:
 		//			if (tiff_ifd[raw].bytes == raw_width*raw_height) {
 		//				tiff_bps = 12;
@@ -1095,7 +1092,10 @@ void CLASS apply_tiff()
 			//				//				case 32803: load_raw = &CLASS kodak_65000_load_raw;
 			//				//				}
 			//				//				case 32867: case 34892: break;
-		default: is_raw = 0;
+		default:
+			cerr << ERROR_LINE << "error " << tiff_compress << endl;
+			is_raw = 0;
+			break;
 		} //end of switch (tiff_compress)
 	}
 
@@ -1290,7 +1290,7 @@ void CLASS nikon_load_raw(NEF &nef)
 		}
 	}
 	if(huff != NULL) {
-		cout << __LINE__ << " free(huff)" << endl;
+		//cout << __LINE__ << " free(huff)" << endl;
 		free (huff); huff = NULL;
 		//assert( malloc_zone_check(NULL) );
 	}
@@ -2965,7 +2965,7 @@ void CLASS identify() {
 		raw_color = 0;
 	}
 	if (raw_color)  {
-		cout << ERROR_LINE << "Not implemented yet. for rgb_cam, xyz_cam" << endl;
+		DBG_MESSAGE("Not implemented yet. for rgb_cam, xyz_cam");
 		//adobe_coeff (make, model);
 	}
 	//		if (load_raw == &CLASS kodak_radc_load_raw)
@@ -3217,11 +3217,11 @@ NEF readNEF0(string file_name)
 		//		merror (meta_data, "main()");
 	}
 	if (filters || colors == 1) {
-		DBG_MESSAGE("filters || colors == 1");
-		cout << ERROR_LINE << "Not implemented yet. " << raw_height+7 << " " << raw_width*2 << " " << sizeof(ushort) << endl;
-		//raw_image = (ushort *) calloc ((raw_height+7), raw_width*2);
-		//raw_image = (ushort *) calloc ((raw_height+7) * raw_width, sizeof(ushort));
-		merror (raw_image, "main()");
+		DBG_MESSAGE("filters || colors == 1 raw_image is not used.");
+//		cout << ERROR_LINE << "Not implemented yet. " << raw_height+7 << " " << raw_width*2 << " " << sizeof(ushort) << endl;
+//		//raw_image = (ushort *) calloc ((raw_height+7), raw_width*2);
+//		//raw_image = (ushort *) calloc ((raw_height+7) * raw_width, sizeof(ushort));
+//		merror (raw_image, "main()");
 	} else {
 		cerr << ERROR_LINE << "error" << endl; exit(0);
 		//		DBG_MESSAGE("else");
