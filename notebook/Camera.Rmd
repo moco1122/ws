@@ -21,12 +21,32 @@ library(ggpubr)
 
 p = p_e * adu_per_e
 p_e = s_e + n_e
-sigma_N_e = sqrt(sigma_rn_e^2 + s_e)
+sigma_e = sqrt(sigma_rn_e^2 + s_e)
 n_eは平均が0の分布とする
 
 
+```{r fig.height = 2, out.width="20%"}
+n_sample <- 100
+adu_per_e <- 2
+sigma_rn_e <- 5
+s_e_levels <- 1 * 2^(0:14)
+dat <- tibble()
 
-```{r}
+for(s_e in s_e_levels) {
+  sigma_e <- sqrt(sigma_rn_e^2 + s_e)
+  p_e <- s_e + rnorm(n_sample, 0.0, sigma_e)
+  s <- adu_per_e * s_e
+  p <- adu_per_e * p_e
+  dat <- bind_rows(dat, tibble(adu_per_e, sigma_rn_e, s_e, p_e, s, p))
+}
 
+sdat <- group_by(dat, adu_per_e, sigma_rn_e, s_e, s) %>%
+  summarise(mean_p_e = mean(p_e), sd_p_e = sd(p_e),
+            mean_p = mean(p), sd_p = sd(p))
+
+g1 <- ggplot(dat) + geom_jitter(aes(s_e, p_e))
+g2 <- ggplot(sdat) + geom_point(aes(s_e, sd_p_e))
+
+g1 + g2 + theme(legend.position = "none")
 
 ```

@@ -36,4 +36,12 @@ password xxxxxxx
 メールアドレスが間違っているとダメらしい
 https://qiita.com/endo_hizumi/items/49edf021b8b9189b4f88
 
+#R
+```{r}
+install.packages("tidyverse")
+install.packages("ggpubr")
+install.packages("devtools")
+devtools::install_github("thomasp85/patchwork")
+```
+
 #処理済み
