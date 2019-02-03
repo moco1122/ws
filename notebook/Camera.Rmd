@@ -1,0 +1,32 @@
+---
+title: "Camera"
+output: html_notebook
+---
+
+カメラのキャリブレーションデータ検討
++ センサー読み出しノイズ・ゲイン
++ バイアスのノイズ統計/RTSノイズ
++ ダークノイズ
+
+```{r setup}
+library(tidyverse)
+library(patchwork)
+library(ggpubr)
+```
+
+#読み出しノイズ/ゲイン
++ sigma_rn_e
++ sigma_s_e = sqrt(s_e)
++ adu_per_e
+
+p = p_e * adu_per_e
+p_e = s_e + n_e
+sigma_N_e = sqrt(sigma_rn_e^2 + s_e)
+n_eは平均が0の分布とする
+
+
+
+```{r}
+
+
+```
