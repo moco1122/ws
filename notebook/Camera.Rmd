@@ -24,7 +24,19 @@ p_e = s_e + n_e
 sigma_e = sqrt(sigma_rn_e^2 + s_e)
 n_eは平均が0の分布とする
 
+s_e = s / k
+sigma_e^2 = sigma^2 / k^2 = n^2 + s/k
 
+k(e/ADU)
+s = s_e / k
+sigma = sigma_e / k = sqrt(sigma_rn_e^2 + s_e) / k
+= sigma_rn_e / k (t=0)
+=sqrt(C/k) (t>>0)
+
+sigma_rn_e = sigma * k
+k = C / sigma^2
+
+sd_p = sqrt(n^2/k^2 + mean_p / k)
 ```{r fig.height = 3, out.width="100%"}
 n_sample <- 1000
 adu_per_e <- 20
@@ -55,5 +67,7 @@ g1 <- g1 + facet_grid(adu_per_e ~ sigma_rn_e)
 g2 <- ggplot(sdat) + geom_line(aes(s, sd_p^2, color = Noise))
 g2 <- g2 + scale_x_log10() + scale_y_log10()
 g1 + g2 + theme(legend.position = "none")
+filter(sdat, Noise == "1,1") -> tsdat
+nls(sd_p ~ sqrt(n^2 / k^2 + mean_p / k), data = tsdat, start = c(n = 1, k = 1))
 
 ```
