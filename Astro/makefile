@@ -11,7 +11,7 @@ export LIBRARY_PATH=/usr/local/lib:${CV_LIB}:${GF_LIB}:${R_LIB}/RInside/lib
 #LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} ${R_LD_FLAG} -ltiff
 LD_FLAG=${CV_LD_FLAG} ${GF_LD_FLAG} -ltiff ${BOOST_LD_FLAG}
 
-CXX_FLAG=-O3 -DUSE_BOOST
+#CXX_FLAG=-O3 -DUSE_BOOST
 # -g -fsanitize=address 
 #CXX_FLAG=-DUSE_BOOST
 # -w -g -fno-omit-frame-pointer
