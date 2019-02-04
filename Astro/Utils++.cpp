@@ -482,14 +482,14 @@ vector<string> sortFileListByTime(vector<string> files) {
 		}
 
 #else
-		vector< pair<ptime, string> > time_filenames;
-		for(unsigned int i = 0; i < filenames.size(); i++) {
-			const ptime time = fs::last_write_time(filenames[i]);
-			time_filenames.push_back(make_pair(time, filenames[i]));
+		vector< pair<ptime, string> > time_files;
+		for(unsigned int i = 0; i < files.size(); i++) {
+			const ptime time = fs::last_write_time(files[i]);
+			time_files.push_back(make_pair(time, files[i]));
 		}
 
 		//		std::sort(time_filenames.begin(), time_filenames.end(), greater< pair< ptime, string > >());
-		std::sort(time_filenames.begin(), time_filenames.end());
+		std::sort(time_files.begin(), time_files.end());
 //		cout << "#after sort" << std::endl;
 //		for(auto time_filename:time_filenames) {
 //			auto sec = chrono::duration_cast<chrono::seconds>(time_filename.first.time_since_epoch());
@@ -497,7 +497,7 @@ vector<string> sortFileListByTime(vector<string> files) {
 //			const tm* lt = std::localtime(&t);
 //			std::cout << time_filename.second << " : " << std::put_time(lt, "%c") << std::endl;
 //		}
-		latest_filename = time_filenames[time_filenames.size() - 1 + last].second;
+		latest_filename = time_files[time_files.size() - 1 + last].second;
 		auto sec = chrono::duration_cast<chrono::seconds>(time_filenames[time_filenames.size() - 1 + last].first.time_since_epoch());
 		std::time_t t = sec.count();
 		const tm* lt = std::localtime(&t);
