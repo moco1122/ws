@@ -37,7 +37,7 @@ sigma_rn_e = sigma * k
 k = C / sigma^2
 
 sd_p = sqrt(n^2/k^2 + mean_p / k)
-```{r fig.height = 3, out.width="100%"}
+```{r fig.width = 6, fig.height = 4, out.width="100%"}
 n_sample <- 1000
 adu_per_e <- 20
 sigma_rn_e <- 5
@@ -64,10 +64,33 @@ sdat <- group_by(dat, adu_per_e, sigma_rn_e, Noise, s_e, s) %>%
 
 g1 <- ggplot(dat) + geom_jitter(aes(s, p, color = Noise))
 g1 <- g1 + facet_grid(adu_per_e ~ sigma_rn_e)
-g2 <- ggplot(sdat) + geom_line(aes(s, sd_p^2, color = Noise))
+g2 <- ggplot(sdat) + geom_point(aes(s, sd_p^2, color = Noise)) + geom_line(aes(s, sd_p^2, color = Noise))
 g2 <- g2 + scale_x_log10() + scale_y_log10()
 g1 + g2 + theme(legend.position = "none")
 filter(sdat, Noise == "1,1") -> tsdat
 nls(sd_p ~ sqrt(n^2 / k^2 + mean_p / k), data = tsdat, start = c(n = 1, k = 1))
 
 ```
+
+D700  4256x2832 ISO200-6400  1/8000-30
+D810A 7360x4912 ISO200-12800 1/8000-30
+
+
+```{r}
+isos <- 200 * 2^(0:6)
+isos
+counts <- 2^(4:13)
+counts
+```
+
+ISO200の時 8192となる露出時間 ss0
+ISO200で   16となる露出時間 ss0 / 512
+ISO12800で 8192となる露出時間 ss0 / 64
+ISO12800で 16となる露出時間 ss0 / 512 / 64 = ss0 / 32768
+
+1/8192 ISO12800 16
+1/128  ISO200   16
+1/16   ISO12800 8192
+4s     ISO200   8192
+
+7 * (10 + 1)
