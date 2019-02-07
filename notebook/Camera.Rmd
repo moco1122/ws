@@ -94,3 +94,36 @@ ISO12800で 16となる露出時間 ss0 / 512 / 64 = ss0 / 32768
 4s     ISO200   8192
 
 7 * (10 + 1)
+
+##ステラショット自動撮影
++ ファイルが開いていると読み込めない
++ LibreOfficeで開いて別名保存すると読み込めない
+    + 開くときにString delimiterを'にすると行けた
++ BatchCaptionは無視される
++ ISOは整数で指定 値がない場合は不明となる 小数部は無視される
++ SSは1以下は"1/60.000"のように文字列で
++ Apertureは11.000のように浮動小数点で指定
+  1s以下は小数部が間違っていると不明だが、1s以上は一応そのまま入る。実際どんな時間になるかは不明
+
++ F明るいと周辺減光大<->
+　F暗いと被写界深度深すぎてピントが合ってくる　ゴミも小さくなって目だつ
+
+```
+SequenceCaption="Schedule For StellaShot", Model="",,,,,,,,,,
+StartJd="None", Enable="True", LiveViewShooting="False", ShotType="Normal", BatchCaption="Batch1", ActualExposeSecond=-1
+.000000,,,,,,
+ExposureTime=”1/125.01”, ISO=400, Aperture=11.00000000000000000, Quality=50383106, Repeat=1, BracketExposureTimeStep=0,
+BracketExposureTimeRepeat=0, BurstShootingMode="None", BurstShootingTime=1.0, BurstShootingNum=10, SaveTo="PC", WaitSave
+ToMedia="Wait"
+StartJd="None", Enable="True", LiveViewShooting="False", ShotType="Normal", BatchCaption="Batch2", ActualExposeSecond=-1
+.000000,,,,,,
+ExposureTime=1.01, ISO=800.5, Aperture=16.01, Quality=50383106, Repeat=1, BracketExposureTimeStep=0, BracketExposureTime
+Repeat=0, BurstShootingMode="None", BurstShootingTime=1.0, BurstShootingNum=10, SaveTo="PC", WaitSaveToMedia="Wait"
+StartJd="None", Enable="True", LiveViewShooting="False", ShotType="Normal", BatchCaption="Batch2", ActualExposeSecond=-1
+.000000,,,,,,
+ExposureTime=4.01, ISO=1602.0, Aperture=4.1, Quality=50383106, Repeat=1, BracketExposureTimeStep=0, BracketExposureTimeR
+epeat=0, BurstShootingMode="None", BurstShootingTime=1.0, BurstShootingNum=10, SaveTo="PC", WaitSaveToMedia="Wait"
+
+```
+
+
