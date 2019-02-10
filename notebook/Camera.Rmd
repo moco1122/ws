@@ -126,4 +126,27 @@ epeat=0, BurstShootingMode="None", BurstShootingTime=1.0, BurstShootingNum=10, S
 
 ```
 
++ 1s以上は+2.1sしないと設定時間にならない
+    + StellaShotの問題？カメラ側の問題？
+    
+```{bash}
+ssed.sh base.csv -13 "`seq 0 7`" 8 1 | tee D810A_bias.csv
+
+ssed.sh base.csv "`seq -9 0`" 1 8 1 | tee D810A_gain_iso200.csv
+ssed.sh base.csv "`seq -1 1`" 1 8 1 | tee D810A_gain_iso200_b.csv
+
+```
+
+##天体名に'が含まれた場合の修正
+awkで'を置換できないので結構たいへん
+撮影時に保存設定で入れたほうがいい
+
+```{bash}
+ls *.nef > ttt0
+ls *.nef | sed s/"EQT00h00m+00o00'"/bias/ > ttt1
+paste ttt0 ttt1
+paste ttt0 ttt1 | awk '{printf("mv \"%s\" %s\n", $1, $2); }' > t.sh
+./t.sh
+
+```
 
