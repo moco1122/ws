@@ -31,6 +31,8 @@ using namespace cv;
 using namespace mycv;
 
 DEFINE_string(i, "unknown.nef", "Input NEF file.");
+DEFINE_bool(s, false, "Print statistics mode");
+DEFINE_string(E, "", "Eval area x,y[,wx,wy]");
 
 //天体写真用の画像処理を行うクラス
 //複数画像処理で共通するデータを内部に保持
@@ -54,12 +56,25 @@ int main(int argc, char **argv) {
 	inputs = getImageFilesList(FLAGS_i);
 
 	//	EXIFリスト表示
-	cout << dcraw::NEF::getEXIFHeader() << endl;
+	if(FLAGS_s) {
+		cout << dcraw::NEF::getStatHeader() << endl;
+	}
+	else {
+		cout << dcraw::NEF::getEXIFHeader() << endl;
+	}
 	start_time();
 	for(std::vector<string>::iterator itr = inputs.begin(); itr != inputs.end(); ++itr) {
 		string input = *itr;
 		dcraw::NEF nef = dcraw::readNEF0(input);
-		cout << nef.getEXIFInfo() << endl;
+		if(FLAGS_s) {
+			int x, y, w, h;
+			x = y = w = h = 0;
+			cout << nef.getStatInfo(x, y, w, h) << endl;
+		}
+		else {
+			cout << nef.getEXIFInfo() << endl;
+		}
+
 		//	nef.freeData();
 	}
 	cout << elapsed_time() << "s" << endl;

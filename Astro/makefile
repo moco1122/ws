@@ -26,7 +26,8 @@ ${LIB_MYCV} : ${OBJ_MYCV} obj/dcrawFunc.o
 	ar r $@ ${OBJ_MYCV} obj/dcrawFunc.o 
 	ranlib $@
 ${OBJ_MYCV} : 
-	${CXX} ${CXX_FLAG} -o $@ -c ${@:obj/%.o=%.cpp} -Wno-format -std=c++17
+	${CXX} ${CXX_FLAG} -o $@ -c ${@:obj/%.o=%.cpp} -Wno-format
+	# -std=c++17
 obj/Utils++.o : Utils++.cpp Utils++.hpp 
 obj/MatUtils.o : MatUtils.cpp MatUtils.hpp 
 obj/QuickLook.o : QuickLook.cpp QuickLook.hpp

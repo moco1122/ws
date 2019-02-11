@@ -91,6 +91,80 @@ public:
 		return info;
 	}
 
+	static string getStatHeader() {
+//		string header = cv::format("%48s %10s %8s %8s %6s %6s %8s %12s %12s %12s",
+//				"File", "Date", "Time", "Camera", "Width", "Height",
+//				"ISO", "Exposure", "Aperture", "FocalLength");
+		string header = cv::format("%48s %8s %8s %12s %4s %4s %4s %4s  %12s %12s %12s %12s  %12s %12s %12s %12s",
+				"File", "Camera", "ISO", "Exposure", "x", "y", "w", "h",
+				"mean_R", "mean_Gr", "mean_Gb", "mean_B",
+				"sd_R", "sd_Gr", "sd_Gb", "sd_b");
+		return header;
+	}
+	string getStatInfo(int x, int y, int w, int h) {
+		//readNEFに移動
+		fileName = getLeafname(fileName);
+		cameraName.erase(std::find(cameraName.begin(), cameraName.end(), '\"'));
+		cameraName.erase(std::find(cameraName.begin(), cameraName.end(), '\"'));
+		string str_exp = exposure;
+		double exposure_s;
+		if(str_exp.find("s", 0) < str_exp.length()) {
+			str_exp.erase(std::find(str_exp.begin(), str_exp.end(), 's'));
+			exposure_s = stof(str_exp);
+		}
+		else {
+			exposure_s = 1.0 / stof(str_exp);
+		}
+//		cout << str_exp.find("s", 0) << str_exp.length()<< endl;
+		//str_exp.erase(std::find(str_exp.begin(), str_exp.end(), 's'));
+
+		//double exp_s =
+//		string info = cv::format("%48s %19s %8s %6d %6d %8d %12f %12.1f %12.1f ",
+//				fileName.c_str(), date.c_str(), cameraName.c_str(), width, height,
+//				ISO, exposure_s, aperture, focalLength);
+
+		x = width / 2;
+		y = height / 2;
+		w = 512;
+		h = 512;
+
+		int w2 = w / 2;
+		int h2 = h / 2;
+		Mat1w r (h2, w2);
+		Mat1w gr(h2, w2);
+		Mat1w gb(h2, w2);
+		Mat1w b (h2, w2);
+		int x1 = x - w / 2;
+		int y1 = y - h / 2;
+		x1 = (x1 < 0) ? 0 : x1;
+		y1 = (y1 < 0) ? 0 : y1;
+
+		int tx, ty;
+		for(int y = y1; y < y1 + h; y += 2) {
+			for(int x = x1; x < x1 + w; x += 2) {
+				tx = (x - x1) / 2;
+				ty = (y - y1) / 2;
+				r (ty, tx) = bayer(y    , x    );
+				gr(ty, tx) = bayer(y    , x + 1);
+				gb(ty, tx) = bayer(y + 1, x    );
+				b (ty, tx) = bayer(y + 1, x + 1);
+			}
+		}
+		Scalar mean_R, mean_Gr, mean_Gb, mean_B;
+		Scalar sd_R, sd_Gr, sd_Gb, sd_B;
+
+		meanStdDev(r , mean_R , sd_R );
+		meanStdDev(gr, mean_Gr, sd_Gr);
+		meanStdDev(gb, mean_Gb, sd_Gb);
+		meanStdDev(b , mean_B , sd_B );
+
+		string info = cv::format("%48s %8s %8d %12f %4d %4d %4d %4d  %12.3f %12.3f %12.3f %12.3f  %12.3f %12.3f %12.3f %12.3f",
+				fileName.c_str(), cameraName.c_str(), ISO, exposure_s, x, y, w, h,
+				mean_R.val[0], mean_Gr.val[0], mean_Gb.val[0], mean_B.val[0],
+				sd_R.val[0], sd_Gr.val[0], sd_Gb.val[0], sd_B.val[0]);
+		return info;
+	}
+
 	void printInfoHeader() {
 //		cout << cv::format("%s %s %s %s %s %s %s %s","File","Date","Time","Camera",
 //				"ISO","Exposure","Aperture","f") << endl;
