@@ -26,7 +26,6 @@ inline double elapsed_time() {
 using std::string;
 using std::cout;
 using std::endl;
-
 using namespace cv;
 using namespace mycv;
 

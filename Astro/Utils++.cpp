@@ -3,7 +3,7 @@
  *
  *  Matを使わないユーティリティ関数類
  */
-//#include <stdio.h>
+#include <stdio.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>

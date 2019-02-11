@@ -9,11 +9,13 @@
 
 #include <math.h>
 //#include <malloc/malloc.h>
+#define DCRAW_VERSION "9.26"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
 #define _USE_MATH_DEFINES
+extern "C" {
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -26,6 +28,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
+}
 
 #if defined(DJGPP) || defined(__MINGW32__)
 #define fseeko fseek
@@ -42,8 +45,8 @@
 #include <winsock2.h>
 //#pragma comment(lib, "ws2_32.lib")
 //#define snprintf _snprintf
-//#define strcasecmp stricmp
-//#define strncasecmp strnicmp
+#define strcasecmp stricmp
+#define strncasecmp strnicmp
 //typedef __int64 INT64;
 //typedef unsigned __int64 UINT64;
 #else
@@ -136,6 +139,28 @@ struct jhead {
 	int algo, bits, high, wide, clrs, sraw, psv, restart, vpred[6];
 	ushort quant[64], idct[64], *huff[20], *free[20], *row;
 };
+
+#ifndef __GLIBC__
+char *my_memmem (char *haystack, size_t haystacklen,
+		char *needle, size_t needlelen)
+{
+	char *c;
+	for (c = haystack; c <= haystack + haystacklen - needlelen; c++)
+		if (!memcmp (c, needle, needlelen))
+			return c;
+	return 0;
+}
+#define memmem my_memmem
+char *my_strcasestr (char *haystack, const char *needle)
+{
+	char *c;
+	for (c = haystack; *c; c++)
+		if (!strncasecmp(c, needle, strlen(needle)))
+			return c;
+	return 0;
+}
+#define strcasestr my_strcasestr
+#endif
 
 void CLASS merror (void *ptr, const char *where)
 {
