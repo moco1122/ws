@@ -10,14 +10,17 @@
 #ifndef DCRAWFUNC_HPP_
 #define DCRAWFUNC_HPP_
 //OpenCVとRcppで共通する部分の関数
-//#include <iostream>
+#include <iostream>
 #include <string>
-#include <stdio.h>
+//#include <stdio.h>
 
 #include <opencv2/opencv.hpp>
-#include "Utils++.hpp"
 
 using std::string;
+using std::cout;
+using std::endl;
+
+#include "Utils++.hpp"
 using namespace cv;
 using namespace mycv;
 
