@@ -2,7 +2,7 @@ export PATH := /mingw64/bin:$(PATH)
 #export PKG_CONFIG_PATH := /usr/local/opt/opencv@2/lib/pkgconfig:/usr/local/opt/gflags/lib/pkgconfig
 
 CXX=g++
-CXX_FLAG=-Wall -O3
+CXX_FLAG=-Wall -O3 -Wno-format -std=c++17
 
 #INCL_CV=`pkg-config --cflags opencv`
 #LIBS_CV=`pkg-config --libs opencv` -ljpeg -ljasper -llcms2
@@ -32,6 +32,6 @@ Wno_DCRAW+=-Wno-dangling-else -Wno-constant-conversion -Wno-macro-redefined
 Wno_DCRAW+=-Wno-c++11-compat-deprecated-writable-strings -Wno-constant-logical-operand
 Wno_DCRAW+=-Wno-string-plus-int -Wno-unused-variable
 Wno_DCRAW+=-Wno-narrowing -Wno-literal-suffix -Wno-overflow -fpermissive -Wno-write-strings
-
+#Wno_DCRAW+=-std=c++17
 #Boostの代わりのライブラリ
 BOOST_LD_FLAG=-std=c++1z -lstdc++fs

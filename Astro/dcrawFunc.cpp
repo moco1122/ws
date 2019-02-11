@@ -81,7 +81,7 @@ typedef unsigned long long UINT64;
 //#define uchar unsigned char
 #endif
 #if !defined(ushort)
-#define ushort unsigned short
+//#define ushort unsigned short
 #endif
 
 #include "Utils++.hpp"
