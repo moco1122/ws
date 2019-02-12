@@ -8,6 +8,11 @@
 #include <string>
 #include <vector>
 #include <chrono>
+extern "C" {
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+}
 
 #include <gflags/gflags.h>
 #include <opencv2/opencv.hpp>
@@ -184,6 +189,8 @@ void cbMouseThumbnail(int event,int x,int y,int flag,void *data) {
 		case EVENT_LBUTTONDOWN :
 			//			cout << cv::format("cbMouseThumbnail lbutton %d %s  %d %d",
 			//					qlThumbnail->wxn, qlThumbnail->names[0].c_str(), x, y) << endl;
+			cout << "#srgb: " << x / qlnef->factor_thumbnail << " " <<  y / qlnef->factor_thumbnail;
+			cout << "  /  raw: " << x / qlnef->factor_thumbnail * 2 << " " <<  y / qlnef->factor_thumbnail * 2 << endl;
 			qlnef->setMainPosition(x / qlnef->factor_thumbnail, y / qlnef->factor_thumbnail, qlnef->main_scale);
 			qlnef->update();
 			break;
@@ -508,6 +515,7 @@ void QuickLookNEF<T>::wait() {
 			//			next();
 			//			break;
 		case ' ' : //case 32 :
+			//cout << mx << " " << my << endl;
 			//cout << "a" <<
 			//			cout << "#" << ERROR_LINE << "Can't get mouse position yet... " ;
 			//			cout << iCurrentWindow << " " << nWindow << " " << mx << " " << my << " ";

@@ -61,7 +61,7 @@ public:
 	~NEF() {
 		//cout << __func__ << endl;
 		//bayer.release();
-//		if(data0) { free(data0); }
+		//		if(data0) { free(data0); }
 	};
 
 	static string getEXIFHeader() {
@@ -72,9 +72,10 @@ public:
 	}
 	string getEXIFInfo() {
 		//readNEFに移動
-		fileName = getLeafname(fileName);
-		cameraName.erase(std::find(cameraName.begin(), cameraName.end(), '\"'));
-		cameraName.erase(std::find(cameraName.begin(), cameraName.end(), '\"'));
+		string tmpfileName = getLeafname(fileName);
+		string tmpCameraName = cameraName;
+		tmpCameraName.erase(std::find(tmpCameraName.begin(), tmpCameraName.end(), '\"'));
+		tmpCameraName.erase(std::find(tmpCameraName.begin(), tmpCameraName.end(), '\"'));
 		string str_exp = exposure;
 		double exposure_s;
 		if(str_exp.find("s", 0) < str_exp.length()) {
@@ -84,31 +85,32 @@ public:
 		else {
 			exposure_s = 1.0 / stof(str_exp);
 		}
-//		cout << str_exp.find("s", 0) << str_exp.length()<< endl;
+		//		cout << str_exp.find("s", 0) << str_exp.length()<< endl;
 		//str_exp.erase(std::find(str_exp.begin(), str_exp.end(), 's'));
 
 		//double exp_s =
 		string info = cv::format("%48s %19s %8s %6d %6d %8d %12f %12.1f %12.1f ",
-				fileName.c_str(), date.c_str(), cameraName.c_str(), width, height,
+				tmpfileName.c_str(), date.c_str(), tmpCameraName.c_str(), width, height,
 				ISO, exposure_s, aperture, focalLength);
 		return info;
 	}
 
 	static string getStatHeader() {
-//		string header = cv::format("%48s %10s %8s %8s %6s %6s %8s %12s %12s %12s",
-//				"File", "Date", "Time", "Camera", "Width", "Height",
-//				"ISO", "Exposure", "Aperture", "FocalLength");
+		//		string header = cv::format("%48s %10s %8s %8s %6s %6s %8s %12s %12s %12s",
+		//				"File", "Date", "Time", "Camera", "Width", "Height",
+		//				"ISO", "Exposure", "Aperture", "FocalLength");
 		string header = cv::format("%48s %8s %8s %12s %4s %4s %4s %4s  %12s %12s %12s %12s  %12s %12s %12s %12s",
 				"File", "Camera", "ISO", "Exposure", "x", "y", "w", "h",
 				"mean_R", "mean_Gr", "mean_Gb", "mean_B",
-				"sd_R", "sd_Gr", "sd_Gb", "sd_b");
+				"sd_R", "sd_Gr", "sd_Gb", "sd_B");
 		return header;
 	}
 	string getStatInfo(int x, int y, int w, int h) {
 		//readNEFに移動
-		fileName = getLeafname(fileName);
-		cameraName.erase(std::find(cameraName.begin(), cameraName.end(), '\"'));
-		cameraName.erase(std::find(cameraName.begin(), cameraName.end(), '\"'));
+		string tmpfileName = getLeafname(fileName);
+		string tmpCameraName = cameraName;
+		tmpCameraName.erase(std::find(tmpCameraName.begin(), tmpCameraName.end(), '\"'));
+		tmpCameraName.erase(std::find(tmpCameraName.begin(), tmpCameraName.end(), '\"'));
 		string str_exp = exposure;
 		double exposure_s;
 		if(str_exp.find("s", 0) < str_exp.length()) {
@@ -118,18 +120,19 @@ public:
 		else {
 			exposure_s = 1.0 / stof(str_exp);
 		}
-//		cout << str_exp.find("s", 0) << str_exp.length()<< endl;
+		//		cout << str_exp.find("s", 0) << str_exp.length()<< endl;
 		//str_exp.erase(std::find(str_exp.begin(), str_exp.end(), 's'));
 
 		//double exp_s =
-//		string info = cv::format("%48s %19s %8s %6d %6d %8d %12f %12.1f %12.1f ",
-//				fileName.c_str(), date.c_str(), cameraName.c_str(), width, height,
-//				ISO, exposure_s, aperture, focalLength);
-
-		x = width / 2;
-		y = height / 2;
-		w = 512;
-		h = 512;
+		//		string info = cv::format("%48s %19s %8s %6d %6d %8d %12f %12.1f %12.1f ",
+		//				fileName.c_str(), date.c_str(), cameraName.c_str(), width, height,
+		//				ISO, exposure_s, aperture, focalLength);
+		if(w == 0 || h == 0) {
+			x = width / 2;
+			y = height / 2;
+			w = 512;
+			h = 512;
+		}
 
 		int w2 = w / 2;
 		int h2 = h / 2;
@@ -162,22 +165,22 @@ public:
 		meanStdDev(b , mean_B , sd_B );
 
 		string info = cv::format("%48s %8s %8d %12f %4d %4d %4d %4d  %12.3f %12.3f %12.3f %12.3f  %12.3f %12.3f %12.3f %12.3f",
-				fileName.c_str(), cameraName.c_str(), ISO, exposure_s, x, y, w, h,
+				tmpfileName.c_str(), tmpCameraName.c_str(), ISO, exposure_s, x, y, w, h,
 				mean_R.val[0], mean_Gr.val[0], mean_Gb.val[0], mean_B.val[0],
 				sd_R.val[0], sd_Gr.val[0], sd_Gb.val[0], sd_B.val[0]);
 		return info;
 	}
 
 	void printInfoHeader() {
-//		cout << cv::format("%s %s %s %s %s %s %s %s","File","Date","Time","Camera",
-//				"ISO","Exposure","Aperture","f") << endl;
+		//		cout << cv::format("%s %s %s %s %s %s %s %s","File","Date","Time","Camera",
+		//				"ISO","Exposure","Aperture","f") << endl;
 		printf("%s %s %s %s %s %s %s %s\n","File","Date","Time","Camera",
 				"ISO","Exposure","Aperture","f");
 	}
 	void printInfo() {
-//		cout << cv::format("%s %s %8s %8d %8s %4.1f %6.1f",
-//				fileName.c_str(),date.c_str(),cameraName.c_str(),
-//				ISO,exposure.c_str(),aperture,focalLength) << endl;
+		//		cout << cv::format("%s %s %8s %8d %8s %4.1f %6.1f",
+		//				fileName.c_str(),date.c_str(),cameraName.c_str(),
+		//				ISO,exposure.c_str(),aperture,focalLength) << endl;
 		printf("%s %s %8s %8d %8s %4.1f %6.1f\n",
 				fileName.c_str(),date.c_str(),cameraName.c_str(),
 				ISO,exposure.c_str(),aperture,focalLength);

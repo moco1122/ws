@@ -150,3 +150,31 @@ paste ttt0 ttt1 | awk '{printf("mv \"%s\" %s\n", $1, $2); }' > t.sh
 
 ```
 
+```{r}
+dat <- read_table2("/Users/kawai/Pictures/ステラショット/uniformity_0026.txt", 
+                   col_names = TRUE, col_types = cols(), comment = "#")
+
+```
+
+
+```{r label, options}
+g <- ggplot(dat)
+gR  <- g + geom_raster(aes(x, y, fill = mean_R))
+gGr <- g + geom_raster(aes(x, y, fill = mean_Gr))
+gGb <- g + geom_raster(aes(x, y, fill = mean_Gb))
+gB  <- g + geom_raster(aes(x, y, fill = mean_B))
+(gR | gGr) / (gGb | gB) & 
+  scale_fill_gradientn(colors = rainbow(7)) & 
+  coord_equal() & theme(legend.position = "none") &
+  scale_y_reverse()
+
+gR  <- g + geom_raster(aes(x, y, fill = sd_R))
+gGr <- g + geom_raster(aes(x, y, fill = sd_Gr))
+gGb <- g + geom_raster(aes(x, y, fill = sd_Gb))
+gB  <- g + geom_raster(aes(x, y, fill = sd_b))
+(gR | gGr) / (gGb | gB) & 
+  scale_fill_gradientn(colors = rainbow(7)) & 
+  coord_equal() & theme(legend.position = "none") &
+  scale_y_reverse()
+
+```
