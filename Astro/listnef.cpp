@@ -6,6 +6,7 @@
 #include <string>
 #include <sys/types.h>
 #include <dirent.h>
+#include <stdlib.h>
 
 #include <chrono>
 std::chrono::system_clock::time_point start;
@@ -33,7 +34,7 @@ DEFINE_string(i0, "", "Input NEF file.");
 DEFINE_string(i, "", "Input directory");
 DEFINE_bool(s, false, "Print statistics mode");
 DEFINE_string(E, "", "Eval area x,y,w,h");
-DEFINE_string(Es, "", "Eval areas x1,y1,w,h");
+DEFINE_string(Es, "", "Eval areas x1,y1,w,h[,wstep,hstep]");
 
 //天体写真用の画像処理を行うクラス
 //複数画像処理で共通するデータを内部に保持
@@ -76,14 +77,19 @@ int main(int argc, char **argv) {
 		dcraw::NEF nef = dcraw::readNEF0(input);
 		if(FLAGS_s) {
 			if(!FLAGS_Es.empty()) {
-				int x1, y1, w, h;
+				int x1, y1, w, h, xstep, ystep;
 				vector< int > eval_args = parseCoefficients<int>(FLAGS_Es);
 				x1 = eval_args[0];
 				y1 = eval_args[1];
 				w = eval_args[2];
 				h = eval_args[3];
-				for(int y = y1; y < (int)nef.height - h; y = y + h) {
-					for(int x = x1; x < (int)nef.width - w; x = x + w) {
+				if(eval_args.size() == 4) { xstep = w; ystep = h; }
+				else {
+					xstep = eval_args[4];
+					ystep = eval_args[5];
+				}
+				for(int y = y1; y < (int)nef.height - h; y = y + ystep) {
+					for(int x = x1; x < (int)nef.width - w; x = x + xstep) {
 						//cout << x << " " << y << " " << w << " " << h << endl;
 						cout << nef.getStatInfo(x + w / 2, y + h / 2, w, h) << endl;
 					}

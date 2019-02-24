@@ -12,6 +12,7 @@ output: html_notebook
 library(tidyverse)
 library(patchwork)
 library(ggpubr)
+Sys.setlocale("LC_ALL", "C")
 ```
 
 #読み出しノイズ/ゲイン
@@ -151,11 +152,10 @@ paste ttt0 ttt1 | awk '{printf("mv \"%s\" %s\n", $1, $2); }' > t.sh
 ```
 
 ```{r}
-dat <- read_table2("/Users/kawai/Pictures/ステラショット/uniformity_0026.txt", 
+dat <- read_table2("/Users/kawai/Pictures/ステラショット/uniformity_0026_128.txt", 
                    col_names = TRUE, col_types = cols(), comment = "#")
 
 ```
-
 
 ```{r label, options}
 g <- ggplot(dat)
@@ -171,7 +171,7 @@ gB  <- g + geom_raster(aes(x, y, fill = mean_B))
 gR  <- g + geom_raster(aes(x, y, fill = sd_R))
 gGr <- g + geom_raster(aes(x, y, fill = sd_Gr))
 gGb <- g + geom_raster(aes(x, y, fill = sd_Gb))
-gB  <- g + geom_raster(aes(x, y, fill = sd_b))
+gB  <- g + geom_raster(aes(x, y, fill = sd_B))
 (gR | gGr) / (gGb | gB) & 
   scale_fill_gradientn(colors = rainbow(7)) & 
   coord_equal() & theme(legend.position = "none") &
