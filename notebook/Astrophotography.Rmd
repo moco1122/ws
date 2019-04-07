@@ -7,6 +7,13 @@ output: html_document
 
 天体写真撮影用のノート
 
+ドリフト
+赤経 -10.62arcsec/m
+    max 0.45arcsec/s
+赤緯 0.79arcsec/m
+Declination Backlash 254+-135ms 3.8+-2.0arcsec
+
+
 #暫定方針
 + ノートはWindows/Macで共有するためGitHubで管理
 + 撮影はWindowsノートPCでステラショットを用いて行う
