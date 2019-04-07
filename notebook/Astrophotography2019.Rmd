@@ -7,16 +7,6 @@ output: html_document
 
 天体写真撮影用のノート
 
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
-=======
-ドリフト
-赤経 -10.62arcsec/m
-    max 0.45arcsec/s
-赤緯 0.79arcsec/m
-Declination Backlash 254+-135ms 3.8+-2.0arcsec
-
-
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
 #暫定方針
 + ノートはWindows/Macで共有するためGitHubで管理
 + 撮影はWindowsノートPCでステラショットを用いて行う
@@ -46,16 +36,23 @@ Declination Backlash 254+-135ms 3.8+-2.0arcsec
 項目ごとに分けて挙げて、ToDoリストをまとめる
 
 #To do
+
++ 外付けバッテリー
++ Stellarmate設定
++ 明るさ・星像の記録とガイドのログを分析
++ バイアス/ゲイン/ダーク特性を把握
++ フラット必要露出を確認
++ 天体明るさ確認
++ ターゲットリスト
++ Shinyアプリ
++ PHDG2マニュアル再確認 Declination Backlashの意味は？
+
 + 過去のメモの記述を統合・ファイルを整理
 + 過去の撮影画像のログ・取捨選択
     + 20181115から遡って20180726まで完了
 
 + ._DSC*.JPG,xmpなどはWindowsでできたファイル？スクリプトで消す
 + タイムラプス素材はLrで条件ごとにフォルダを分ける
-
-+ フラットをqlnefで確認
-+ フィルタ/押さえありでフラットを確認
-+ センサ/フィルタのゴミ除去
 
 + 過去の撮影画像から今後の観測のためのデータを抽出
     + 空の明るさ/露出時間/月齢/観測地/天体の明るさ
@@ -83,12 +80,8 @@ Declination Backlash 254+-135ms 3.8+-2.0arcsec
     + 20181102 D810A + 魚眼
     + 20181114 D810A + 760mm 
     + 20181115 D810A + 760mm
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
     + 20190308 D810A + 1120mm ADNB
-=======
-    + 201803??
     + 20180324 D810A + 1120mm ADNB
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
 + 逗子新宿湾
     + 20160831 D810A 明るい
 + 披露山
@@ -143,10 +136,6 @@ Declination Backlash 254+-135ms 3.8+-2.0arcsec
 + 観測時の問題点/不便な点/不明な点を解決
 
 + 副鏡固定によるフレア確認
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
-=======
-+ フラットのゴミ原因追求
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
 + ノートPC用外部バッテリーテスト
 
 + qlnefでフラットフィールディングがうまくいかない?
@@ -258,17 +247,12 @@ o    + 20160211 D810+14,24,85mmでOri
     + 20180826 M17, M16
     + 20181114 M77 AG/F/D
     + 20181114 NGC253,NGC246,M77 AGDA/F/D
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
     + 20190308 NGC2359, IC2166, ハッブルの変光星雲, NGC2264, M46+NGC2348
                NGC2392, NGC2903, Leo Quartet, Leo Triplet
-=======
-    
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
-ダーク除去
+
++ ダーク除去
     + これ以前は未確認
     + 20120326 D700+48mm 洗足池に沈む金星,三日月,木星 要露出調整
-    
-    
     
 #To do in the future...
 + コリメート法
@@ -322,12 +306,9 @@ o    + 20160211 D810+14,24,85mmでOri
            エクステンダーPHだとアダプタのケラレ
            F値が大きいほうがセンサのゴミが目立つ
 + 20190305 クリップフィルターありだとピントが違いすぎてよくわからない 現像もうまくいってない？
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
-           
-=======
+
 + 20190324 透明バーティノフマスク αCMiで一応できた。
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
-           
+
 ###SXP/StarBOOKTEN
 + 20171222 ピリオディックモーション測定
 + 201808?? STARBOOK TENのコントロールが効かなくなった 
@@ -359,13 +340,9 @@ o    + 20160211 D810+14,24,85mmでOri
 + 20180207 D810A+500mmでオートガイド調整 PHDガイディングでドリフトアライメント
 + 20181115 D810A+760mm ドリフトアライメント　架台の目盛りを信用するのが良さげ
 
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
 ###フラット
 + 20190308 フラットのゴミ原因追求 -> センサーのゴミが原因だった
 
-
-=======
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
 ###PC/ケーブリング
 + 20180207 USBケーブルが不安定？
 + 20180224 R232cケーブル断線/交換
@@ -375,24 +352,15 @@ o    + 20160211 D810+14,24,85mmでOri
 + 20180820 チューブでケーブルをまとめると、重さがまして負担が大きそうなのでやめた
 + 20180820 マジックテープによるケーブル固定 今の所良さそう
 + 20181210 HDDバックアップしたけどだいぶファイルがなくなってる...
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
+
 + 20190308 オートガイダとD810Aを同時につなぐと画像が取得できなくなった...
            家ではmacでガイドをすればいいが外では？ Raspbery Piでいってみるか？
-
-+　外付けバッテリー
-
-=======
-+ 201903?? オートガイダが動かなくなった。D810Aと同時に接続するとダメな様子。電力の問題?
-           家ではmacに繋げば良いがフィールドではどうするか。
-
-+　外付けバッテリー
 
 ###Stellarmate
 HotSpot Password: stellar@mate
 Hostname: stellarmate.local HotSpot接続の場合はhttp://10.250.250.1:8624
 username: stellarmate
 password: smate
-
 
 + 20180317 Lenovoでガイドできなくなったので発注
 + 20180322 電源入れたけどディスプレイが映らない...
@@ -402,7 +370,8 @@ password: smate
            + ssh -l stellarmate stellarmate.local -p / pass smate
            + /boot/config.txtのhdmi_safe=1をコメント外す
 + 20180324 iPadからHotSpotでログインできなかったが、リセット繰り返すとできるようになった。
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
++ 20190401? StarbookTenに未対応？アップデート必要？ガイダ動作したが設定がうまく行っていない D810Aはよくわかんない
+  
 
 ###設営
 + 20180224 すのこ導入
@@ -414,19 +383,29 @@ password: smate
 + 20120329? 
 
 ###ステラショット
-
-###PHD Guiding
-+ 20180820 PHD Guiding2 + ASCOM接続に変更 時々コマンドエラーが出ているが？
-+ 20181115 ドリフトアライメントで赤緯方向の補正が不要になり星像改善？要確認  
-+ 20181115 ドリフトアライメントは赤道儀のメモリを見た方が良さそう
-<<<<<<< HEAD:notebook/Astrophotography00.Rmd
-=======
 + 20190314 エラーウインドウが出まくった。
 + 201903?? 起動しても全く反応しなくなった。
            再インストール・システム復元では解決せず。
            レジストリまで完全消去して再インストールで戻った。
 + 20190324 最初Starbook Tenとの接続がうまくいかなかったが、観測できるようになった。
->>>>>>> b1e1b09ff0f040472752b5831284864eced74095:notebook/Astrophotography.Rmd
+
+###PHD Guiding2
++ 20180820 PHD Guiding2 + ASCOM接続に変更 時々コマンドエラーが出ているが？
++ 20181115 ドリフトアライメントで赤緯方向の補正が不要になり星像改善？要確認  
++ 20181115 ドリフトアライメントは赤道儀の目印を見た方が良さそう
++ 20190405 ExtenderPH導入するとオートガイドの精度が目立ってきた
+           100mm+QHY-5IIMでRMS=1.7-2.0arcsec  2-3pix 15-20arcsec
++ 20190407 800mm+QHY-5IIMでRMS=0.6-1.0arcsec 4pix 4-5arcsec?
+           同じ明るさだと星像サイズに比例する感じか？
+           ガイドアシスタント出力例
+```
+赤経 -10.62arcsec/m max 0.45arcsec/s
+赤緯 0.79arcsec/m
+Declination Backlash 254+-135ms 3.8+-2.0arcsec
+```
+            ガイド露出時間あたりの赤緯ドリフト<検出精度以上に合わせても意味がなさそう
+            1arcsec/s -> 60arcsec/m 1arcsec/mを切っていればよしとするか
+            USB繋いでから動作するまでに時間が必要？
 
 ###自作ソフト
 + 20181201? dcrawがメモリ関連で不正終了することがあったので最小限の構成で改修
