@@ -1,0 +1,36 @@
+---
+title: "FinanceTest"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(tidyquant)
+library(patchwork)
+
+```
+
+```{r}
+dat <- c("TSE/9984", "TSE/4755", "TSE/4751", "TSE/3668") %>%
+  tq_get(get  =  "quandl",
+         from =  "2013-01-01",
+         to   =  "2016-01-01")
+```
+
+```{r}
+dat <- dat %>%
+  mutate(symbol = recode(symbol, "TSE/9984" = "ソフトバンク", "TSE/4755" = "楽天", "TSE/4751" = "サイバーエージェント", "TSE/3668" = "コロプラ"))
+g <- ggplot(dat)
+g1 <- g + geom_bar(aes(symbol))
+g2 <- g + geom_histogram(aes(date))
+g3 <- g + geom_histogram(aes(open))
+g4 <- g + geom_histogram(aes(high))
+g5 <- g + geom_histogram(aes(low))
+g6 <- g + geom_histogram(aes(close))
+g7 <- g + geom_histogram(aes(volume))
+
+(g1 | g2 | g3 | g4) / (g5 | g6 | g7) & theme(legend.position = "none")
+#& theme_gray(base_family = "HiraKakuPro-W3")
+
+```
+
