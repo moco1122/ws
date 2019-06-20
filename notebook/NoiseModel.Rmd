@@ -1,0 +1,523 @@
+---
+title: "NoiseModel"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    theme: cerulean
+    highlight: tango
+---
+
+ノイズモデル算出手順のまとめ RGrGbBカメラ用
+
+```{r setup, include = FALSE}
+source("tidyverse.R", encoding = "UTF8")
+library(modelr)
+dir <- "/astrophoto/dat"
+```
+
+#バイアス
+
+NEFから統計量/画素値ダンプ出力
+```{bash listpdaf, eval = F}
+listpdaf -i bias -s -pd0 28 |tee bias/dat/stat_RL.txt
+listpdaf -i bias -s -pd0 32 |tee bias/dat/stat_RGrGbB.txt
+listpdaf -i bias -s -pd0 28 -dump bias/dat/dump_RL.csv
+```
+
+ダンプしたcsvをrdsにして保存
+
+```{r csv_to_rds,echo = T,eval = F}
+csv_file <- glue("{dir}/dump_RGrGbB.csv")
+dat <- read_csv0(csv_file)
+saveRDS(dat, gsub(".csv", ".rds", csv_file))
+
+```
+
+```{r,  echo = FALSE, eval = FALSE, warning = FALSE}
+rds_file <- glue("{dir}/dump_RGrGbB.rds")
+dat <- readRDS(rds_file)
+head(dat)
+
+```
+
+###ヒストグラムデータに変換
+
+全開口,半開口同士の差はあまり大きくなさそうなので、
+ISO感度ごとに全開口と半開口を分けたデータを作成してrdsに保存
+
+```{r to_histgram_dat, fig.width = 10, fig.height = 4, echo = FALSE, eval = FALSE, warning = FALSE}
+rds_file <- glue("{dir}/dump_RGrGbB.rds")
+dat <- readRDS(rds_file)
+gdat <- gather(dat, Pixel, Value, -ID, -ISO, -X, -Y)
+
+gdat <- gdat %>%
+  group_by(ID, ISO, Pixel) %>%
+  nest()
+#gdat <- gdat %>% filter(ISO == 400)
+
+to_histogram_data <- function(Value) {
+  pb$tick()$print()
+  g <- ggplot() + geom_histogram(aes(Value), binwidth = 1)
+  hist_data <- layer_data(g) %>% as_tibble()
+  hist_data <- hist_data %>% transmute(x, count, ncount)
+  hist_data
+}
+
+pb <- progress_estimated(nrow(gdat))
+hdat <- gdat %>%
+  mutate(data = map(data, ~ to_histogram_data(.x$Value)))
+
+saveRDS(hdat, glue("{dir}/hdat_RGrGbB.rds"))
+
+```
+
+
+### ヒストグラム形状確認
+
+```{r, fig.width = 6, fig.height = 4, echo = FALSE, eval = FALSE, warning = FALSE}
+rds_file <- glue("{dir}/hdat_RGrGbB.rds")
+hdat <- readRDS(rds_file)
+hdat <- hdat %>% unnest(data)
+hdat <- filter(hdat, x > -1008)
+hdat <- mutate(hdat, nx = x / (ISO / 100))
+hdat <- filter(hdat, count >= 10)
+hdat <- arrange(hdat, Pixel)
+
+g <- ggplot(hdat) + geom_point(aes(abs(nx), y = count, color = Pixel))
+g <- g + facet_wrap(~ ISO, scale = "free_y", nrow = 2) + coord_cartesian(xlim = c(0, 10))
+g <- g + scale_y_log10()
+plot(g)
+
+```
+
+
+##ノイズ分布のフィッティング(一括版)
+
+フィット結果の係数をファイルに保存
+
+```{r, fig.width = 10, fig.height = 6, echo = FALSE, eval = FALSE, warning = FALSE}
+th_ncount_gauss0 <- 0.2
+th_ncount_gauss <- 0.1
+
+rds_file <- glue("{dir}/hdat_RGrGbB.rds")
+hdat0 <- readRDS(rds_file)
+
+select_fit_data <- function(data) {
+  fit_data <- data %>%
+    filter(count >= 10) %>%
+    filter(ncount >= 10e-4) %>%
+    filter(abs(x) > 0.0) %>%
+    filter(x > -1000)
+  fit_data
+}
+hdat <- hdat0 %>%
+  mutate(data = map(data, ~ select_fit_data(.x)))
+
+#Regression and Prediction
+#1. Tentative fitting for Gaussian noise.
+mdat <- hdat %>%
+  mutate(lm_gauss0 = 
+           map(data,
+               ~ lm(log(count) ~ 1 + x + I(x^2), 
+                    data = filter(., count > max(count) * th_ncount_gauss0))))
+mdat <- mdat %>%
+  mutate(data = map2(data, lm_gauss0, 
+                     ~ .x %>%
+                       mutate(pred_gauss0 = exp(predict(.y, .x)),
+                              res1 = count - pred_gauss0,
+                              Fit = ifelse(count > max(count) * th_ncount_gauss0, 
+                                           "1_lm_gauss0", "0_notused"))))
+
+#2. Fitting for RTS noise.
+mdat <- mdat %>% 
+  mutate(lm_rts = ifelse(ISO >= 6400,
+                         map(data,
+                             ~ lm(log(res1) ~ 1 + I(abs(x)^2),
+                                  data = filter(., abs(x) >= quantile(abs(x))[4]))),
+                         map(data,
+                             ~ lm(log(res1) ~ 1 + abs(x),
+                                  data = filter(., abs(x) >= quantile(abs(x))[4])))))
+mdat <- mdat %>%
+  mutate(data = map2(data, lm_rts, 
+                     ~ .x %>%
+                       mutate(pred_rts = exp(predict(.y, .x)),
+                              res2 = res1 - pred_rts,
+                              count3 = count - pred_rts,
+                              Fit = ifelse(abs(x) >= quantile(abs(x))[4], "2_lm_rts", Fit))))
+
+
+#3. Figting for Gaussian noise.
+mdat <- mdat %>% 
+  mutate(lm_gauss = map(data,
+                        ~ lm(log(count3) ~ 1 + x + I(x^2),
+                             data = filter(., count3 > max(count3) * th_ncount_gauss))))
+mdat <- mdat %>% 
+  mutate(data = 
+           map2(data, lm_gauss,
+                ~ .x %>%
+                  mutate(pred_gauss = exp(predict(.y, .x)),
+                         res3 = count3 - pred_gauss,
+                         Fit = ifelse(count3 > max(count3) * th_ncount_gauss, "3_lm_gauss", Fit))))
+
+#Extract coefficients
+coef_lm_rts <- function(lm_rts, ISO) {
+  coef_rts <- tidy_coef(lm_rts, c("a0", "a1"))
+  if(ISO >= 6400) {
+    coef_rts <- coef_rts %>% 
+      transmute(rts_a0 = exp(a0),
+                rts_A = rts_a0 * sqrt(2 * pi) * sqrt(- 1 / 2 / a1),
+                rts_sigma = sqrt(- 1 / 2 / a1))
+  }
+  else {
+    coef_rts <- coef_rts %>% 
+      transmute(rts_a0 = exp(a0),
+                rts_A = rts_a0 / (-a1),
+                rts_sigma = sqrt(1 / ( (-a1)^2)))
+  }
+  coef_rts
+}
+coef_lm_gauss <- function(lm_gauss) {
+  coef_gauss <- tidy_coef(lm_gauss, c("a0", "a1", "a2"))
+  coef_gauss %>% 
+    transmute(gauss_A0 = exp(a0 - a1^2 / 4 / a2),
+              gauss_mu = -(a1 / 2 / a2),
+              gauss_sigma = sqrt(- 1 / 2 / a2),
+              gauss_A = gauss_A0 * sqrt(2 * pi) * gauss_sigma)
+}
+
+mdat <- mdat %>% mutate(coef_rts = map2(lm_rts, ISO, coef_lm_rts))
+mdat <- mdat %>% mutate(coef_gauss = map(lm_gauss, coef_lm_gauss))
+
+saveRDS(mdat, gsub(".rds", "_model.rds", rds_file))
+
+```
+
+#### フィッティングしたモデルの確認
+
+```{r, fig.width = 10, fig.height = 6, echo = FALSE, eval = FALSE, warning = FALSE}
+rds_file <- glue("{dir}/hdat_RGrGbB_model.rds")
+model_dat <- readRDS(rds_file)
+
+model_dat <- model_dat %>%
+  mutate(A0a0 = map2_dbl(coef_gauss, coef_rts, ~ .x$gauss_A0 + .y$rts_a0)) %>%
+  mutate(data = map2(data, A0a0, 
+                     ~ .x %>% mutate(ncount = count / .y,
+                                     nres3 = res3 / .y)))
+
+model_dat <- model_dat %>%
+  mutate(ldata = map(data,
+                     ~ tibble(x = seq(min(.$x), max(.$x), (max(.$x) - min(.$x))/100)))) %>%
+  mutate(ldata = map2(ldata, lm_rts, 
+                      ~ mutate(.x, p_rts = exp(predict(.y, .x))))) %>%
+  mutate(ldata = map2(ldata, lm_gauss,
+                      ~ mutate(.x, p_gauss = exp(predict(.y, .x))))) %>%
+  mutate(ldata = map2(ldata, A0a0, 
+                      ~ .x %>% mutate(p_rts = p_rts / .y,
+                                      p_gauss = p_gauss / .y)))
+
+#Create plots.
+plot_model_dat <- function(data, pixel) {
+  print(pixel)
+  pdat <- data %>% select(ISO, data) %>% unnest(data)
+  ldat <- data %>% select(ISO, ldata) %>% unnest(ldata)
+
+  g1 <- ggplot(pdat) + geom_point(aes(x, ncount, color = Fit))
+  g1 <- g1 + geom_line(data = ldat, aes(x, p_gauss), color = "red")
+  g1 <- g1 + geom_line(data = ldat, aes(x, p_rts), color = "blue")
+  g1 <- g1 + geom_line(data = ldat, aes(x, p_gauss + p_rts), color = "black")
+  g1 <- g1 + labs(y = "Norm. counts")
+  g2 <- ggplot(pdat) + geom_point(aes(x, nres3, color = Fit))
+  g2 <- g2 + labs(y = "Norm. res.")
+  g <- ((g1) /
+          (g2 + coord_cartesian(ylim = c(-0.05, 0.05))) /
+          (g1 + scale_y_log10() + coord_cartesian(ylim = c(5e-4, 1.0))) /
+          (g2 + scale_y_log10() + coord_cartesian(ylim = c(1e-5, 0.15))))
+  g <- g & 
+    facet_wrap(~ factor(ISO), scale = "free_x", nrow = 1) &
+    theme(legend.position = "none")
+  g <- g + plot_annotation( title = "Fitting for read-out noises", 
+                            subtitle = sprintf("Pixel=%s", pixel))
+  plot(g)
+}
+
+model_dat %>% 
+  split(.$Pixel) %>%
+  iwalk(plot_model_dat)
+
+```
+
+####ISO感度に対するガウスノイズ/RTSノイズ成分のσ
+
+```{r, fig.width = 4, fig.height = 2, echo = FALSE, eval = FALSE, warning = FALSE}
+rds_file <- glue("{dir}/hdat_RGrGbB_model.rds")
+model_dat <- readRDS(rds_file)
+
+coef_dat <- model_dat %>% 
+  select(ISO, Pixel, coef_gauss, coef_rts) %>%
+  unnest(coef_gauss, coef_rts)
+
+coef_dat <- coef_dat %>% 
+  nest(-Pixel) %>%
+  mutate(lm_gauss_sigma = 
+           map(data, 
+               ~ lm(log10(gauss_sigma) ~ log10(ISO), 
+                    data = filter(., ISO >= 400)))) %>%
+  mutate(data = 
+           map2(data, lm_gauss_sigma,
+                ~ mutate(.x, pred_gauss_sigma = 10^(predict(.y, .x)))))
+pdat <- coef_dat %>% unnest(data)
+
+
+g <- ggplot(pdat) + geom_point(aes(ISO, gauss_sigma, color = Pixel))
+g <- g + geom_line(aes(ISO, pred_gauss_sigma, color = Pixel))
+g <- g + scale_x_log10() + scale_y_log10()
+g <- g + coord_equal()
+g
+
+g <- ggplot(pdat) + geom_point(aes(ISO, rts_sigma, color = Pixel))
+g <- g + scale_x_log10() + scale_y_log10()
+g <- g + coord_equal()
+g
+
+```
+
+***
+
+#ゲイン
+
++ F2.8 ティッシュ2重x2 + コピー用紙1+ND4で減光
++ シャッタースピードで露出レベルを変えた画像を自動撮影
++ 以下でログファイルと対応付け
+
+```{bash, eval = F}
+ls *.NEF | sed '1s/^/File        \n/' | sed '1s/^/\n/' > t1.txt; nkf -d CMD_FLOW_DATA5_log20190426_1422.txt > t2.txt; paste t2.txt t1.txt > log.txt
+#Edit manually
+nkf -d CMD_FLOW_DATA5_log20190426_1429.txt > t2b.txt; paste t2b.txt t1b.txt >> log.txt
+
+```
+
+NEFから統計量/画素値ダンプ出力
+DSC_1142.NEFだけ圧縮が異なる？エラーが出る
+-> ノイズが多くてロスレス圧縮すると逆にファイルサイズが増える場合は自動的に非圧縮になるっぽい
+
+```{bash listpdaf_gain, eval = F}
+listpdaf -i ./ -s -pd0 28 -pdE 2122,114,256,16 -dump dat/dump_RL.csv | tee dat/stat_RL.txt
+listpdaf -i ./ -s -pd0 32 -pdE 2122,114,256,16 -dump dat/dump_RGrGbB.csv | tee dat/stat_RGrGbB.txt
+
+```
+
+ダンプしたcsvをrdsにして保存
+```{r csv_to_rds_gain,echo = T,eval = F}
+dir <- "E:/data/DFD/20190424/gain/"
+for(line in c("RL", "RGrGbB")) {
+  csv_file <- sprintf("%s/dat/dump_%s.csv", dir, line)
+  rds_file <- sprintf("%s/dat/dump_%s.rds", dir, line)
+  message(sprintf("#resave %s to %s", csv_file, rds_file))
+  dat <- read_csv(csv_file, col_names =TRUE, comment = "#", col_types = cols())
+  saveRDS(dat, rds_file)
+}
+
+```
+
+###ヒストグラムデータに変換
+```{r to_histgram_dat_gain, fig.width = 10, fig.height = 4, echo = FALSE, eval = FALSE, warning = FALSE}
+dir <- "E:/data/DFD/20190424/gain/"
+rds_file <- glue("{dir}/dat/dump_RGrGbB.rds")
+dat <- readRDS(rds_file)
+gdat <- gather(dat, Pixel, Value, -ID, -ISO, -SS, -X, -Y)
+
+gdat <- gdat %>%
+  group_by(ID, ISO, SS, Pixel) %>%
+  nest()
+#gdat <- gdat %>% filter(ISO == 400)
+
+to_histogram_data <- function(Value) {
+  pb$tick()$print()
+  sd <- sd(Value)
+  g <- ggplot() + geom_histogram(aes(Value), binwidth = sd / 2.5)
+  hist_data <- layer_data(g) %>% as_tibble()
+  hist_data <- hist_data %>% transmute(x, count, ncount)
+  hist_data
+}
+
+pb <- progress_estimated(nrow(gdat))
+hdat <- gdat %>%
+  mutate(data = map(data, ~ to_histogram_data(.x$Value)))
+
+saveRDS(hdat, glue("{dir}/dat/test_hdat_RGrGbB.rds"))
+
+```
+
+```{r, fig.width = 10, fig.height = 8, echo = FALSE, eval = FALSE, warning = FALSE}
+dir <- "E:/data/DFD/20190424/gain/"
+hdat <- readRDS(glue("{dir}/dat/test_hdat_RGrGbB.rds"))
+
+sss <- c(sprintf("%d/1", c(8, 4, 2, 1)), 
+         sprintf("1/%d", c(2, 4, 8, 15, 30, 60, 125 * 2^(0:6))))
+
+hdat <- mutate(hdat, ISO = as.integer(ISO), SS = factor(SS, levels = sss))
+hdat <- hdat %>% unnest(data)
+hdat <- filter(hdat, x > -1008)
+hdat <- mutate(hdat, nx = x / (ISO / 100))
+hdat <- filter(hdat, count >= 10)
+hdat <- arrange(hdat, Pixel)
+hdat <- filter(hdat, ISO == 100)
+
+g <- ggplot(hdat) + geom_point(aes(abs(nx), y = count, color = Pixel))
+g <- g + facet_wrap(~ ISO, scale = "free_y", nrow = 2) + coord_cartesian(xlim = c(0, 10))
+g <- g + scale_y_log10()
+plot(g )
+
+g <- ggplot(hdat) + geom_point(aes(x, y = count, color = Pixel))
+g <- g + facet_wrap( ~ SS, scale = "free")
+g <- g + scale_y_log10()
+plot(g )
+
+```
+
+##ノイズ分布のフィッティング(一括版)
+
++ ガウシアンノイズのみでフィット
++ 暗いところはずれるはず
+
+```{r, fig.width = 10, fig.height = 6, echo = FALSE, eval = FALSE, warning = FALSE}
+dir <- "E:/data/DFD/20190424/gain/"
+
+th_ncount_gauss0 <- 0.1
+th_ncount_gauss <- 0.1
+
+rds_file <- glue("{dir}/dat/test_hdat_RGrGbB.rds")
+hdat0 <- readRDS(rds_file)
+
+sss <- c(sprintf("%d/1", c(8, 4, 2, 1)), 
+         sprintf("1/%d", c(2, 4, 8, 15, 30, 60, 125 * 2^(0:6))))
+hdat0 <- mutate(hdat0, SS = factor(SS, levels = sss))
+
+select_fit_data <- function(data) {
+  fit_data <- data %>%
+    filter(count >= 10) %>%
+    filter(ncount >= 10e-4) %>%
+    filter(x > -1000)
+  fit_data
+}
+hdat <- hdat0 %>%
+  mutate(data = map(data, ~ select_fit_data(.x)))
+
+#Regression and Prediction
+#1. Tentative fitting for Gaussian noise.
+mdat <- hdat %>%
+  mutate(lm_gauss0 = 
+           map(data,
+               ~ lm(log(count) ~ 1 + x + I(x^2), 
+                    data = filter(., count > max(count) * th_ncount_gauss0))))
+mdat <- mdat %>%
+  mutate(data = map2(data, lm_gauss0, 
+                     ~ .x %>%
+                       mutate(pred_gauss0 = exp(predict(.y, .x)),
+                              res1 = count - pred_gauss0,
+                              Fit = ifelse(count > max(count) * th_ncount_gauss0, 
+                                           "1_lm_gauss0", "0_notused"))))
+
+#Extract coefficients
+coef_lm_gauss0 <- function(lm_gauss0) {
+  coef_gauss0 <- tidy_coef(lm_gauss0, c("a0", "a1", "a2"))
+  coef_gauss0 %>% 
+    transmute(gauss0_A0 = exp(a0 - a1^2 / 4 / a2),
+              gauss0_mu = -(a1 / 2 / a2),
+              gauss0_sigma = sqrt(- 1 / 2 / a2),
+              gauss0_A = gauss0_A0 * sqrt(2 * pi) * gauss0_sigma)
+}
+mdat <- mdat %>% mutate(coef_gauss0 = map(lm_gauss0, coef_lm_gauss0))
+
+saveRDS(mdat, gsub(".rds", "_model.rds", rds_file))
+
+```
+
+#### フィッティングしたモデルの確認
+
+```{r, fig.width = 10, fig.height = 6, echo = FALSE, eval = FALSE, warning = FALSE}
+dir <- "E:/data/DFD/20190424/gain/"
+rds_file <- glue("{dir}/dat/test_hdat_RGrGbB_model.rds")
+model_dat <- readRDS(rds_file)
+
+model_dat <- model_dat %>%
+  mutate(A0 = map_dbl(coef_gauss0, ~ .x$gauss0_A0)) %>%
+  mutate(data = map2(data, A0, 
+                     ~ .x %>% mutate(ncount = count / .y,
+                                     nres1 = res1 / .y)))
+
+model_dat <- model_dat %>%
+  mutate(ldata = map(data,
+                     ~ tibble(x = seq(min(.$x), max(.$x), (max(.$x) - min(.$x))/100)))) %>%
+  mutate(ldata = map2(ldata, lm_gauss0,
+                      ~ mutate(.x, p_gauss0 = exp(predict(.y, .x))))) %>%
+  mutate(ldata = map2(ldata, A0, 
+                      ~ .x %>% mutate(p_gauss0 = p_gauss0 / .y)))
+
+#Create plots.
+plot_model_dat <- function(data, pixel) {
+  print(pixel)
+  pdat <- data %>% select(ISO, SS, data) %>% unnest(data)
+  ldat <- data %>% select(ISO, SS, ldata) %>% unnest(ldata)
+
+  g1 <- ggplot(pdat) + geom_point(aes(x, ncount, color = Fit))
+  g1 <- g1 + geom_line(data = ldat, aes(x, p_gauss0), color = "black")
+  g1 <- g1 + labs(y = "Norm. counts")
+  g1 <- g1 + facet_grid(ISO ~ SS, scale = "free")
+  g1 <- g1 + labs(title = "Fitting for shot noises", 
+                            subtitle = sprintf("Pixel=%s", pixel))
+  plot(g1)
+}
+
+model_dat %>% 
+  split(.$Pixel) %>%
+  iwalk(plot_model_dat)
+
+```
+
+#### ショットノイズのμとσの比較
+
++ 概ねモデル曲線に従っていそう
+
+```{r, fig.width = 8, fig.height = 4, echo = FALSE, eval = FALSE, warning = FALSE}
+dir <- "E:/data/DFD/20190424/gain/"
+model_dat <- readRDS(glue("{dir}/dat/test_hdat_RGrGbB_model.rds"))
+
+gain_dat <- model_dat %>% 
+  select(ISO, Pixel, coef_gauss0) %>%
+  unnest(coef_gauss0)
+
+dir <- "E:/data/DFD/20190215/bias/"
+bias_dat <- readRDS(sprintf("%s/dat/test_hdat_RGrGbB_model.rds", dir))
+bias_dat <- bias_dat %>%
+  mutate(sigma_rn = map_dbl(coef_gauss, ~ min(.x$gauss_sigma)))
+#  summarize(sigma_rn = min(gauss_sigma))
+
+g <- ggplot() + 
+  geom_point(data = gain_dat, aes(gauss0_mu, gauss0_sigma, color = factor(ISO))) +
+  geom_point(data = bias_dat, aes(1, sigma_rn, color = factor(ISO)), shape = 1)
+g <- g + scale_x_log10() + scale_y_log10()
+g <- g + coord_equal()
+g
+
+```
+
+##biasとgainを合わせてモデル化
+
+```{r, fig.width = 8, fig.height = 4, echo = FALSE, eval = FALSE, warning = FALSE}
+bias_gain_dat <- bias_dat %>%
+  select(ISO, Pixel, sigma_rn) %>%
+  left_join(gain_dat, by = c("ISO", "Pixel"))
+
+g <- ggplot(bias_gain_dat) + 
+  geom_point(aes(log10((gauss0_mu)), log10(gauss0_sigma^2  - sigma_rn^2), color = factor(ISO)))
+g
+
+```
+
+
+
+
+
+
