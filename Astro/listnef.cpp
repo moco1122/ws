@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <fstream>   // ifstream, ofstream
 #include <string>
 #include <sys/types.h>
 #include <dirent.h>
@@ -35,6 +36,8 @@ DEFINE_string(i, "", "Input directory");
 DEFINE_bool(s, false, "Print statistics mode");
 DEFINE_string(E, "", "Eval area x,y,w,h");
 DEFINE_string(Es, "", "Eval areas x1,y1,w,h[,wstep,hstep]");
+DEFINE_string(dump, "", "Dump output");
+DEFINE_int32(offset, 600, "Offset value");
 
 //天体写真用の画像処理を行うクラス
 //複数画像処理で共通するデータを内部に保持
@@ -64,6 +67,14 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
+	std::ofstream csv;
+	if(!FLAGS_dump.empty()) {
+		csv.open(FLAGS_dump, std::ios::out);
+		//csv << cv::format("%48s %6s %12s %8s %8s %8s %8s %8s %8s",
+		csv << cv::format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+				"File", "ISO", "Exposure", "X", "Y", "R", "Gr", "Gb", "B") << endl;
+	}
+
 	//	EXIFリスト表示
 	if(FLAGS_s) {
 		cout << dcraw::NEF::getStatHeader() << endl;
@@ -71,6 +82,9 @@ int main(int argc, char **argv) {
 	else {
 		cout << dcraw::NEF::getEXIFHeader() << endl;
 	}
+
+
+
 	start_time();
 	for(std::vector<string>::iterator itr = inputs.begin(); itr != inputs.end(); ++itr) {
 		string input = *itr;
@@ -112,9 +126,34 @@ int main(int argc, char **argv) {
 			cout << nef.getEXIFInfo() << endl;
 		}
 
+		if(!FLAGS_dump.empty()) {
+			int xc, yc, w, h;
+			if(!FLAGS_E.empty()) {
+				vector< int > eval_args = parseCoefficients<int>(FLAGS_E);
+				xc = eval_args[0];
+				yc = eval_args[1];
+				w = eval_args[2];
+				h = eval_args[3];
+			}
+			else {
+				cerr << ERROR_LINE << "error" << endl; exit(0);
+			}
+			Mat_<short> b = nef.bayer;
+			b = b - FLAGS_offset;
+			for(int y = yc - h / 2; y < yc + h / 2; y = y + 2) {
+				for(int x = xc - w / 2; x < xc + w / 2; x = x + 2) {
+//					csv << cv::format("%48s %6d %12s %4d %4d  %8d %8d %8d %8d",
+					csv << cv::format("%s,%d,%s,%d,%d,%d,%d,%d,%d",
+							nef.fileName.c_str(), nef.ISO, nef.exposure.c_str(),
+							x, y, b(y, x), b(y, x+1), b(y+1, x), b(y+1, x+1)) << endl;
+				}
+			}
+		}
+
 		//	nef.freeData();
 	}
 	cout << "#" << elapsed_time() << "s" << endl;
+	csv.close();
 
 	return 0;
 }

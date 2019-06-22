@@ -19,6 +19,6 @@ tidy_coef <- function(model, col_names = NULL) {
   if(!is.null(col_names)) {
     coef_dat  <- coef_dat %>% mutate(term = col_names)
   }
-  
+  print(coef_dat)
   coef_dat %>% spread(term, estimate) 
 }
