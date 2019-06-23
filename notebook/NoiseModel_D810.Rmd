@@ -14,18 +14,22 @@ D810A
 + offset=600
 + 拡張感度はISOを手入力
 + ISO3200以下はオフセット減算後の負値が-28でクリップされている。
-+ ISO3200のBのみ平均値がおかしい?
-+ ISO6400以上はRTSノイズ成分にNRがかかっていそう
++ 平均値のズレはあまり目立たない
++ ISO3200以上はRTSノイズ成分にNRがかかっていそう
 + RTSノイズ成分を測定するには画素数が必要
+
+平均とシグマをプロット
+必要なら再撮影
+差分の統計は?
+
 
 
 ```{r setup, include = FALSE}
 source("tidyverse.R", encoding = "UTF8")
 library(modelr)
-dir0 <- "/Volumes/data/Photo/astrophoto/2019/20190622bias_D810A/dat"
+dir0 <- "/Volumes/data/Photo/astrophoto/2019/20190622bias_D810/dat"
 dir <- "/ws/notebook/dat"
-basename <- "dump_RGrGbB_offset0"
-basename <- "dump_RGrGbB"
+basename <- "dump_D810"
 ```
 
 #バイアス
@@ -46,9 +50,9 @@ csv_file <- glue("{dir0}/{basename}.csv")
 dat <- read_csv0(csv_file)
 dat <- nest(dat, -File, -ISO, -Exposure) %>% 
   mutate(ISO = case_when(
-    File == "./DSC_1396.NEF" ~ 100, 
-    File == "./DSC_1404.NEF" ~ 25600, 
-    File == "./DSC_1405.NEF" ~ 51200, 
+    File == "./DSC_1386.NEF" ~ 32, 
+    File == "./DSC_1396.NEF" ~ 25600, 
+    File == "./DSC_1397.NEF" ~ 51200, 
     TRUE ~ ISO))
 saveRDS(dat, glue("{dir}/{basename}.rds"))
 
