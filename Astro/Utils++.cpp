@@ -198,6 +198,34 @@ vector<string> getImageFilesList(string path) {
 	vector<string> sorted_image_files = sortFileListByTime(image_files);
 	return(sorted_image_files);
 }
+
+vector<string> getNEFFilesList(string path) {
+	vector<string> image_files;
+	DIR *dp;
+	dirent* entry; // readdir() で返されるエントリーポイント
+
+	dp = opendir(path.c_str());
+	if (dp==NULL) {
+		cerr << "Can't open directory " << path << endl;
+		exit(1);
+	}
+	do {
+		entry = readdir(dp);
+		if (entry != NULL) {
+			if(strstr(entry->d_name, ".NEF" ) != NULL || strstr(entry->d_name, ".nef" ) != NULL) {
+				image_files.push_back(cv::format("%s%s", path.c_str(), entry->d_name));
+			}
+		}
+	} while (entry != NULL);
+
+	if(image_files.size() == 0) {
+		cerr << "There is no image in directory. " << path << endl;
+		exit(0);
+	}
+	vector<string> sorted_image_files = sortFileListByTime(image_files);
+	return(sorted_image_files);
+}
+
 //
 ////filenameの存在判定
 bool isExist(const string& filename) {

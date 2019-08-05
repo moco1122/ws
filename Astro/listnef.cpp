@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 	vector<string> inputs;
 	if(!FLAGS_i0.empty()) { inputs.push_back(FLAGS_i0); }
 	else if(!FLAGS_i.empty()) {
-		inputs = getImageFilesList(FLAGS_i);
+		inputs = getNEFFilesList(FLAGS_i);
 	}
 	if(inputs.size() <= 0) {
 		cout << ERROR_LINE << "Not implemented yet." << endl;
