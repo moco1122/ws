@@ -34,3 +34,9 @@ g7 <- g + geom_histogram(aes(volume))
 
 ```
 
+#株価取得
+https://manareki.com/stock_python_scraping
+
+pythonのquandlは終了したそうな
+
+tidyquantは？

@@ -1,0 +1,21 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+#天体リスト
+
+https://github.com/mattiaverga/OpenNGC
++ 座標はNED, 投球はSIMBAD
++ csv,ods
++ NGC/ICにない天体が20ほど
+
+readODSをテスト
++ 説明を読んで残す行を決める
++ NGC/IC, M, C, Nickname,....
++ C天体リストとマージ
+
++ 二重星
+
+
+
