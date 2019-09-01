@@ -4,12 +4,137 @@ output: html_notebook
 ---
 
 #天体リスト
-
+## OpenNGC
 https://github.com/mattiaverga/OpenNGC
 + 座標はNED, 投球はSIMBAD
 + csv,ods
 + NGC/ICにない天体が20ほど
 
+### NGC_guide.txt
+
+カタログ名/ID/subIDに分離して整理
++ Name: Object name composed by catalog + number
+    NGC: New General Catalogue
+    IC: Index Catalogue
+    
+統計をみて消す/マージするタイプを整理
+- Type: Object type
+    S   *: Star
+    D   **: Double star
+    A   *Ass: Association of stars
+    OC  OCl: Open Cluster
+    GC  GCl: Globular Cluster
+    OCN Cl+N: Star cluster + Nebula
+    G   G: Galaxy
+    Gp  GPair: Galaxy Pair
+    Gt  GTrpl: Galaxy Triplet
+    Gg  GGroup: Group of galaxies
+    PN  PN: Planetary Nebula
+    HII HII: HII Ionized region
+    DN  DrkN: Dark Nebula
+    EN  EmN: Emission Nebula
+    N   Neb: Nebula
+    RN  RfN: Reflection Nebula
+    SNR SNR: Supernova remnant
+    NV  Nova: Nova star
+    削除 NonEx: Nonexistent object
+    削除 Dup: Duplicated object (see NGC or IC columns to find the master object)
+    Other Other: Other classification (see object notes)
+
+残す
++ RA: Right Ascension in J2000 Epoch (HH:MM:SS.SS)
++ Dec: Declination in J2000 Epoch (+/-DD:MM:SS.SS)
++ Const: Constellation where the object is located
+
+あるのとないのがあるが大きさ/明るさの目安として残しておく
+- MajAx: Major axis, expressed in arcmin
+- MinAx: Minor axis, expressed in arcmin
+- PosAng: Major axis position angle (North Eastwards)
+- B-Mag: Apparent total magnitude in B filter
+- V-Mag: Apparent total magnitude in V filter
+IRバンドは消す
+- J-Mag: Apparent total magnitude in J filter
+- H-Mag: Apparent total magnitude in H filter
+- K-Mag: Apparent total magnitude in K filter
+
+一応残す?
+- SurfBr (only Galaxies): Mean surface brigthness within 25 mag isophot (B-band), expressed in mag/arcsec2
+- Hubble (only Galaxies): Morphological type (for galaxies)
+
+一応残す?名前は変更
+- Cstar U-Mag (only Planetary Nebulae): Apparent magnitude of central star in U filter
+- Cstar B-Mag (only Planetary Nebulae): Apparent magnitude of central star in B filter
+- Cstar V-Mag (only Planetary Nebulae): Apparent magnitude of central star in V filter
+- Cstar Names (only Planetary Nebulae): central star identifications
+
+整理する Dupをのぞいて必要か確認
+- M: cross reference Messier number
+- NGC: other NGC identification, if the object is listed twice in the catalog
+- IC: cross reference IC number, if the object is also listed with that identification
+
+どんなカタログが参照されているか確認
+- Identifiers: cross reference with other catalogs
+
+- Common names: Common names of the object if any
+- NED Notes: notes about object exported from NED
+- OpenNGC Notes: notes about the object data from OpenNGC catalog
+
+```{r}
+dat0 <- read_delim("../OpenNGC-master/NGC.csv", ";", 
+                  col_types = cols(RA = col_character()), 
+                  guess_max = 10000)
+dat <- dat0 %>% select(-c('J-Mag', 'H-Mag', 'K-Mag'))
+```
+
+銀河が
+```{r}
+library(tidyverse)
+ggplot(dat) + geom_bar(aes(Type, fill = Type), ) +
+  theme(legend.position = "top") + coord_cartesian(ylim = c(0, 700))
+
+```
+
+以下は除外
++ NonEx 14個
++ Nova IC4544, 4816, 4850 Nova 1900以前の写真乾板で見つかった天体
+
++ SNR 11個 カニ星雲, 網状星雲以外は厳しそう IC443(GemA), NGC6334くらいか？ Dorにあと一つ
+
++ GGroup 14個 サブIDでそれぞれの数を確認 -> サブIDつき以外は消してもOK?
++ GTrpl 23個
++ GPair 212個
+
+
++ *Ass 60個 M24, MW/M33/LMCのstar cloud, asterismなど...
++ RfN 38個 名前ありのが5個
++ Neb 93個 M,Cが結構入ってる HIIもRNも含む感じ？
++ EmN 8個 全部LMCの天体
++ Cl+N 66個 M42とか
++ HII 82個 馬頭星雲など+ LMCの天体
+
++ PN 129個
+
++ *  削除
++ ** 削除　綺麗なわけではないので...
++ Dup 削除
++ G 10488個 サブIDで整理
++ GCl 205個
++ OCl 650個 LMC/SMCのが結構ある
++ Other 430個...色々なのが混ざってるので再分類
+
++ 系外銀河の天体をExフラグで分離
++ 複合天体
++ 複数銀河
+
+
++ CaldwellはOpenNGCのIdentifiersに含まれる？全部揃ってるか確認
++ Arp
++ HCG
++ Abell(PN)
++ PN
+
+
+#ToDo
 readODSをテスト
 + 説明を読んで残す行を決める
 + NGC/IC, M, C, Nickname,....
