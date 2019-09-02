@@ -1,0 +1,131 @@
+---
+title: "RforAstronomy"
+output: html_notebook
+---
+
+https://asaip.psu.edu/forums/software-forum/459833927
+で紹介されているパッケージのメモ  
+
++ Referenceで内容を確認
++ 気になるものは試す
++ 天体写真の撮影/計画に有用そうなものがあれば利用
+    + astroFns 時間と位置の処理
+    + FITSio FITS関連 そのうち...
+    + RobPer ピリオドグラム 仕事で使うか？
+    + SPADAR 全天チャートにプロット
+    + sphereplot rglを使った球面プロット
+
+最終更新　2019.6
+
+#astro: Astronomy functions, tools and routines 
+cosmology, FITS file manipulation, the Sersic function, plotting, data manipula- tion, statistics and general convenience functions and scripting tools  
+天文学的な解析用
+
+#astrodatR: Astronomical data
+'Modern Statistical Methods for Astronomy with R Applications'
+で使われている統計天文学学習用データ  
+網羅的な天体リストのようなものはない
+
+#astroFns: Astronomy: time and position functions, misc. utilities
+電波天文学用に集められた、時間と位置の処理する関数集  
+
++ angSep 2点間の距離 戻り値は角度
++ dms2rad, hms2rad, rad2dms, rad2hms 単位の変換 placesは小数点の桁数
++ b2j, j2b B1950.0<->J2000.0分点変換
++ elev, azimuth elevationとazimuth
++ jd2ymd, ymd2jd JD<->year, month, day
++ ut2lst, ut2ha UT <- local sidereal time or hour angle
+
+```{r}
+library(astroFns)
+angSep('1h59m03s', '-3d40m44s', '2h30', '5h40m03')
+b2j(ra = "17h43m" , dec = "-28d47m30s")
+dms2rad("10:22:14")
+dms2rad("10d22m14s")
+elev(dec.sou = "33d09m35.0s", ha = 0, lat.obs = "38d25m59.2s")
+azimuth(dec.sou = "33d 09m 35.0s", ha = -1, lat.obs = "38d 25m 59.2s")
+hms2rad(h = "12h 3m 45.6s" )
+rad2dms(-66.5 * pi/180, places = 4)
+```
+
+#astrolibR: Astronomy Users Library
+IDLから移植された関数集  
+有用なのもありそうだけど使わないものが多そう...
+
+# celestial: Collection of common astronomical conversion routines 
+座標変換と宇宙論用の関数  
+データベース処理用な印象
+
+#cosmoFns: Functions for cosmological distances, times, luminosities, etc
+宇宙論関係
+
+#CosmoPhotoz: Photometric redshift estimation using generalized linear models
+赤方偏移関連? もうない
+
+#CRAC: Cosmology R Analysis Code
+宇宙論研究用 pythonのcosmolopyに似ているそう
+
+#FITSio: FITS (Flexible Image Transport System) utilities
+FITS関連
+
+#IRACpm  (not in CRAN)
+Spitzerのデータ処理用？
+
+#lira: LInear Regression in Astronomy
+宇宙論用のBayesian linear regression
+
+#lrgs: Linear Regression by Gibbs Sampling
+タイトル通り
+
+#magicaxis: Pretty scientific plotting with minor-tick and log minor-tick support
+プロット用だがサンプルなし...
+
+#moonsun: Basic astronomical calculations with R
+もうない
+
+#ProFit: Fit projected 2D profiles to galaxy images
+銀河画像解析用
+
+#ProFound: Photometry tools
+測光用?  
+使えるかもしれないが複雑そうなのであまり手を出したくない感じ
+
+#prospectr: Miscellaneous functions for processing and sample selection of vis-NIR diffuse reflectance data
+calibration sampling? よくわかんない
+
+#ringscale: Ringscale
+もうない
+
+#RMultiNest (not in CRAN)
+ベイズ推定のパラメータ最適化ツール?MultiNestを使うための関数
+
+#RobPer: Periodogram methods for irregularly samples time series  
+ピリオドグラム
+
+#RStars: Access to the Digital Universe Data set API
+もうない
+
+#SCEPtER: Stellar CharactEristics Pisa Estimation gRid
+#SCEPtERextras: Additional grids for SCEPtER
+もうない
+
+#snapshot:  Gadget N-body simulation code snapshot I/O utilities  
+N体シミュレーション？
+
+#SOPIE: Non-parametric estimation of the off-pulse interval of a pulsar
+パルサー
+
+#SPADAR: Spherical Projections of Astronomical Data
+全天チャートにプロット
+
+#sphereplot: Spherical plotting
+rglを使った球面プロット
+
+#stellaR: stellar evolution tracks and isochrones
+星の進化
+
+#UPMASK: Unsupervised Photometric Membership Assignment in Stellar Clusters
+星団メンバーの解析?
+
+
+

@@ -1,0 +1,29 @@
+---
+title: "Object"
+output: html_notebook
+---
+
+観測ターゲットリスト作成
+
+
++ NGC/ICにM,Caldwelをマージする
++ 星,二重星は？
+
+
+#Moon
+S&T July 2019より
+
++ 豊饒の海 Petavius
++ 神酒の海 Theophilus, Cyrillus, Catherina, Rupes Altai
++ 危難の海
++ 静かの海 Apollo 11 astronaut craters(Aldrin, Collins, Armstrong)
++ 晴れの海 Montes Caucasus, Serpentine Ridge
++ 蒸気の海    Triesnecker, Ariadaeus Rilles
++ 氷の海
++ 雨の海   虹の入江, Plato, Montes Alpes, Montes Apenninus
++ 嵐の大洋 アリスタルコス,ケプラー, Milichius Pi, Marius Hills
+    + 島の海 コペルニクス
++ 湿りの海　Sickyard,Gassendi
++ 雲の海    Rupes Recta
++ 東方の海  
++ Tycho, Clavius
