@@ -5,6 +5,7 @@ output: html_notebook
 
 ```{r setup}
 library(tidyverse)
+library(glue)
 
 ```
 
@@ -92,14 +93,14 @@ dat0a <- read_delim("../OpenNGC-master/addendum/addendum.csv", ";",
                   guess_max = 10000)
 dat0 <- bind_rows(dat0, dat0a)
 #dat0 <- dat0 %>% select(1:5, 6, 19:21, 23:26)
-dat0 <- dat0 %>% select(1:5, 6, 19:21, 23:24)
+dat0 <- dat0 %>% select(1:5, 19:21, 23:24)
 dat0 <- rename(dat0, CommonNames = "Common names")
 
 dat1 <- dat0
 dat1 <- dat1 %>% filter(Type != "*")
 dat1 <- dat1 %>% filter(!is.na(M) | Type != "**")
 dat1 <- dat1 %>% filter(Type != "Dup")
-dat1 <- dat1 %>% filter(Type != "Other")
+dat1 <- dat1 %>% filter(!is.na(M) | Type != "Other")
 dat1 <- dat1 %>% filter(!is.na(CommonNames) | Type != "*Ass")
 dat1 <- dat1 %>% filter(Type != "Nova")
 dat1 <- dat1 %>% filter(Type != "NonEx")
@@ -114,10 +115,74 @@ dat1 <- dat1 %>%
     "DrkN" = "DN", 
     "RfN" = "RN",
     "EmN" = "EN",
-    "GPair" = "Gpair",
-    "GTrpl" = "Gtriplet",
-    "GGroup" = "Ggroup"))
+    "GPair" = "Gp",
+    "GTrpl" = "Gt",
+    "GGroup" = "Gg"))
+
+remove_catalogs <- function(id) {
+ ccc <- id
+ if(!is.na(id)) {
+   ccc <- str_split(ccc, ",")[[1]]
+
+   patterns <- c("2MASX", "IRAS", "MCG", "PGC", "UGC", 
+                 "LEDA", "2MASS", "ESO ", "ESO-LV ", 
+                 "6dF ", "ESOLV", "SDSS",
+                 "LBN ", "MWSC ", "TYC ", "BD", "HIP ", "HD ",
+                 "IDS ", "WDS ", "UCAC", "SAO ",
+                 "PK ", "PN G")
+  # ccc <- ccc[-na.omit(charmatch(patterns, ccc))] #最後しかマッチできない
+
+   for(pattern in patterns) {
+     ccc <- ccc[!str_detect(ccc, pattern)]
+   }
+
+   ccc <- paste(ccc, collapse = ",")
+   if(ccc == "") { ccc = NA_character_ }
+ }
+ ccc
+}
+
+#不要なカタログ名を除去
+dat2 <- dat1 %>%
+ mutate(Identifiers = map_chr(Identifiers, remove_catalogs))
+
+#Caldwel天体の番号を抽出/修正
+dat3 <- dat2 %>% 
+  transmute(Name, Type, RA, Dec, Const, M, NGC, IC,
+            C = as.integer(parse_number(Identifiers)), 
+            Identifiers, CommonNames) %>%
+  mutate(CommonNames = if_else(str_sub(Name, 1, 2) == "C0" & !is.na(Identifiers),
+                               as.character(glue("{CommonNames},{Identifiers}")), 
+                               CommonNames)) %>%
+  mutate(C = if_else(str_sub(Name, 1, 2) == "C0", as.integer(parse_number(Name)), C)) %>%
+  mutate(CommonNames = if_else(!is.na(C) & C == 64, "Tau CMa", CommonNames)) %>%
+  select(-Identifiers)
+
+#Messier天体を修正
+dat4 <- dat3 %>%
+  mutate(M = as.integer(parse_number(M))) %>%
+  mutate(CommonNames = if_else(Name == "NGC5866", "M102?", CommonNames)) %>%
+  mutate(M = if_else(Name == "NGC5866", as.integer(102), M)) %>%
+  mutate(Type = if_else(!is.na(M) & M == 73, "A", Type))
+
+dat5 <- dat4 %>%
+  mutate(IC = if_else(str_sub(Name, 1, 2) == "IC", 
+                      as.integer(parse_number(Name)), NA_integer_)) %>%
+  mutate(NGC = if_else(str_sub(Name, 1, 3) == "NGC", 
+                       as.integer(parse_number(Name)), NA_integer_))
+
+#filter(dat5, !is.na(M)) %>% arrange(M) %>% View # NGC5866をM102として110個
+#filter(dat5, !is.na(C)) %>% arrange(C) %>% View #109個 初版の間違いは修正済みなのを確認
+
+filter(dat5, !is.na(M) | !is.na(C) | !is.na(CommonNames)) %>% 
+  arrange(M, C, NGC, IC) %>% View() #この273個が最初のターゲットリストか 重複/細分あるけど...
 ```
+あとは書籍で出てきた天体を追加
+Shiny spread sheetをテスト？
+
+RA/DECでプロット
+銀経/銀緯でプロット
+visibilityをプロット
 
 銀河が多い
 ```{r}
