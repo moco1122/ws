@@ -176,9 +176,41 @@ dat5 <- dat4 %>%
 
 filter(dat5, !is.na(M) | !is.na(C) | !is.na(CommonNames)) %>% 
   arrange(M, C, NGC, IC) %>% View() #この273個が最初のターゲットリストか 重複/細分あるけど...
+saveRDS(dat5, file = "../object.rds")
 ```
 あとは書籍で出てきた天体を追加
 Shiny spread sheetをテスト？
+
+```{r}
+dat0 <- readRDS("../object.rds")
+dat1 <- dat0 %>% 
+  filter(!is.na(M) | !is.na(C) | !is.na(CommonNames))
+
+library(astroFns)
+dat1 <- dat1 %>%
+  mutate(RA_h = hms2rad(RA) / 2 / pi * 24.0,
+         Dec_d = dms2rad(Dec) / 2 / pi * 360.0)
+dat1 <- dat1 %>% 
+  mutate(Type = recode(Type,
+    "GCl" = "GC",
+    "OCl" = "OC",
+    "A" = "OC", 
+    "EN" = "HII",
+    "Neb" = "HII", 
+    "Cl+N" = "HII", 
+    "RN" = "OC", 
+    "Gp" = "G",
+    "Gt" = "G",
+    "Gg" = "G"))
+dat2 <- dat1 %>%
+  filter(RA_h >= 24
+         | RA_h <= 2) %>%
+  filter(between(Dec_d, -45, 35))
+ggplot(dat2) + geom_jitter(aes(RA_h, Dec_d, color = Type)) +
+  scale_x_reverse()
+View(dat2)
+```
+
 
 RA/DECでプロット
 銀経/銀緯でプロット
