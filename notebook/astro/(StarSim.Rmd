@@ -1,0 +1,29 @@
+---
+title: "StarSim"
+output: html_notebook
+---
+
+星像シミュレーション
+
+```{r setup}
+library(tidyverse)
+```
+
+# ガイドエラーの影響
+
++ ガイドRMSと星像を比較してseeingの統計をプロットしてみる
+
+```{r}
+seeing <- seq(0.5, 2.0, 0.2)
+guide_rms <- seq(0.5, 2.0, 0.2)
+
+sigma <- sqrt(seeings^2 + guide_rms^2)
+
+dat <- tibble(guide_rms) %>%
+  mutate(data = map(guide_rms, 
+                    ~ tibble(seeing, sigma = sqrt(seeing ^ 2 + .x ^ 2)))) %>%
+  unnest()
+
+ggplot(dat) + geom_line(aes(seeing, sigma, color = factor(guide_rms)))
+
+```

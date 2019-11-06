@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(png)
+
+```
+
+```{r}
+
+rainbow2 <- matrix(hcl(seq(0, 360, length.out = 10), 80, 70), nrow = 1)
+ggplot(mtcars, aes(mpg, wt)) +
+  annotation_raster(rainbow2, -Inf, Inf, -Inf, Inf) +
+  geom_point()
+
+```
+
+```{r}
+width <- 64
+height <- 64
+sigma <- 1
+image <- create_star_image(width, height, 
+                           c(width / 2, width / 2, width / 2),
+                           c(height / 2, height / 2, height / 2), 
+                           c(3, 3, 3), 
+                           c(sigma, sigma, sigma))
+image <- image / max(image)
+#image <- image ^ (1 / 2.2)
+
+g <- ggplot() + annotation_raster(image, -Inf, Inf, -Inf, Inf)
+g <- g + coord_equal(xlim = c(1, width), ylim = c(1, height))
+#g <- g + coord_equal(ratio = height / width)
+g
+```
+
+
+```{r}
+image <- readPNG("290px-M42-20050206-lrgb-900.png")
+g <- ggplot()
+#g <- g + annotation_raster(image, -Inf, Inf, -Inf, Inf, interpolate = FALSE)
+g <- g + annotation_raster(image, 1, 290, 1, 240, interpolate = TRUE)
+#g <- g + coord_equal()
+g <- g + coord_fixed(xlim = c(1, 290), ylim = c(1, 240))
+#g <- g + coord_equal(xlim = c(100, 150), ylim = c(100, 150))
+g
+
+g <- ggplot()
+g <- g + annotation_raster(image, -Inf, Inf, -Inf, Inf, interpolate = FALSE)
+#g <- g + coord_fixed()
+g <- g + coord_fixed(xlim = c(1, 290), ylim = c(1, 240))
+#g <- g + coord_equal(xlim = c(100, 150), ylim = c(100, 150))
+g
+
+```
