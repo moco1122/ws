@@ -13,6 +13,9 @@ source("functions.R", encoding = "UTF-8")
 # reactive
 # speed
 
+r_gain <- 2.0
+b_gain <- 1.5
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -26,7 +29,8 @@ ui <- fluidPage(
            tabsetPanel(type = "tabs",
                        tabPanel("対象", wellPanel(
                          selectInput("object", "Object", object_names, selectize = TRUE),
-                         numericInput("size", "Size", 256, width = 80),
+                         sliderInput("size", "Size", 32, 128, 32, animate = TRUE),
+#                         numericInput("size", "Size", 256, width = 80),
                          sliderInput("background_level", "Background level (e/s/pix2)", 0, 255, 128),
                          sliderInput("object_level", "Object level (e/s/star)", 0, 255, 128),
                          sliderInput("psigma", "Object sigma", 0, 10, 1),
@@ -78,7 +82,7 @@ server <- function(input, output) {
     cameraValues()
   })
   
-  output$image <- renderPlot({
+  create_image0 <- reactive({
     size <- input$size
     xc <- size / 2
     yc <- size / 2
@@ -89,11 +93,31 @@ server <- function(input, output) {
                                 object_level_e_s_pix2, psigma)
     image0 <- image0 + background_level_e_s_pix2
     
+    image0[ , , 1] <- image0[ , , 1] / r_gain
+    image0[ , , 3] <- image0[ , , 3] / b_gain
+    #image0
+    gain <- 1
+    bayer <- image0[, , 2] / gain
+    r_index <- seq(1, size, 2)
+    b_index <- seq(1 + 1, size, 2)
+    bayer[r_index, r_index] <- image0[r_index, r_index, 1] / gain / r_gain
+    bayer[b_index, b_index] <- image0[b_index, b_index, 3] / gain / b_gain
+    bayer <- bayer + sqrt(bayer) * rnorm(size * size, 0, 1)
+    bayer <- bayer * gain
+    bayer
+    
+  })
+  
+  output$image <- renderPlot({
+    image0 <- create_image0()
     image <- image0 / max(image0)
+    image <- pmax(image, 0.0)
     #image <- image ^ (1 / 2.2)
     
-    g <- ggplot() + annotation_raster(image, -Inf, Inf, -Inf, Inf)
+    g <- ggplot() + annotation_raster(image, -Inf, Inf, -Inf, Inf, interpolate = TRUE)
+    #g <- ggplot() + annotation_raster(image, 1, size, -1, -size, interpolate = TRUE)
     g <- g + coord_equal(xlim = c(1, size), ylim = c(1, size))
+    #g <- g + coord_equal(xlim = c(1, size), ylim = c(-size, size))
     g <- g + theme(plot.background = element_rect(fill = "transparent", color = NA),
                    panel.background = element_rect(fill = "transparent", color = NA))
     g
