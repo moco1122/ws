@@ -1,0 +1,156 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+SaturnSim
+
+```{r setup}
+source("./functions.R", encoding = "UTF8")
+source("./settings.R", encoding = "UTF8")
+
+focal_length_mm <- 539
+f_ratio <- 8
+sigma_optics_um <- 0
+N_pix <- 32
+sim_resolution <- 1
+N_pix1 <- N_pix * sim_resolution
+lambda_um <- 500 * 10^(-3)
+sim_margin_arcsec <- 10
+
+gamma <- 1 / 2.2
+camera <- "RGGB"
+interpolation <- "重心一致補間"
+
+```
+
+```{r}
+pix_ums <- c(1.35, 4.0)
+sigma_seeing_arcsecs <- c(0.5, 1.5)
+pix_ums <- c(1, 1.5, 2, 2.5, 3, 3.5, 4.0)
+sigma_seeing_arcsecs <- c(0.5, 1.0, 1.5, 2.0)
+
+#pix_ums <- c(1.35)
+#sigma_seeing_arcsecs <- c(1.5)
+
+pw <- 256
+ph <- 256
+aspect_ratio <- 88 / 128
+dev.off()
+par(mar = c(0, 0, 1.5, 0))
+plot( 0, 0, xlim = c(1, pw * length(sigma_seeing_arcsecs)), ylim = c(ph * length(pix_ums), 1), 
+      type="n", asp = aspect_ratio, axes = FALSE, xlab = "", ylab = "" )
+title(glue("Original : Focal Length={focal_length_mm}(mm) / F Ratio={f_ratio} / Sim. Resolution={sim_resolution}"), 
+      col.main = "black")
+
+dev.new()
+par(mar = c(0, 0, 1.5, 0))
+plot( 0, 0, xlim = c(1, pw * length(sigma_seeing_arcsecs)), ylim = c(ph * length(pix_ums), 1), 
+      type="n", asp = aspect_ratio, axes = FALSE, xlab = "", ylab = "" )
+title(glue("Blurred Original : Focal Length={focal_length_mm}(mm) / F Ratio={f_ratio} / Sim. Resolution={sim_resolution}"), 
+      col.main = "black")
+
+dev.new()
+par(mar = c(0, 0, 1.5, 0))
+plot( 0, 0, xlim = c(1, pw * length(sigma_seeing_arcsecs)), ylim = c(ph * length(pix_ums), 1), 
+      type="n", asp = aspect_ratio, axes = FALSE, xlab = "", ylab = "" )
+title(glue("Captured : Focal Length={focal_length_mm}(mm) / F Ratio={f_ratio} / Sim. Resolution={sim_resolution}"), 
+      col.main = "black")
+
+dev.new()
+par(mar = c(0, 0, 1.5, 0))
+plot( 0, 0, xlim = c(1, pw * length(sigma_seeing_arcsecs)), ylim = c(ph * length(pix_ums), 1), 
+      type="n", asp = aspect_ratio, axes = FALSE, xlab = "", ylab = "" )
+title(glue("Upsampled : Focal Length={focal_length_mm}(mm) / F Ratio={f_ratio} / Sim. Resolution={sim_resolution}"), 
+      col.main = "black")
+
+print(dev.list())      
+
+m <- 0
+n <- 0
+for(pix_um in pix_ums) {
+  pix1_um <- pix_um / sim_resolution
+  pix_arcsec <- 180 / pi * 2 * atan(pix_um / 1000 / 2 / focal_length_mm) * 60 * 60
+  pix1_arcsec <- pix_arcsec / sim_resolution
+  sigma_optics_pix1 <- sigma_optics_um / pix1_um
+  sim_margin_pix1 <- ceiling(sim_margin_arcsec / pix1_arcsec)
+  
+  psf_optics <- create_psf_gaussian(N_pix1, sigma_optics_pix1)
+  psf_airydisc <- create_psf_airydisc(N_pix1, f_ratio, pix1_um, lambda_um)
+  
+  #Original image in size of simulation
+  img1 <- imresize(img0, pix0_arcsec / pix1_arcsec, interpolation = 3)
+  img1 <- add_margin(img1, sim_margin_pix1)
+  
+  n <- 0
+  for(sigma_seeing_arcsec in sigma_seeing_arcsecs) {
+    sigma_seeing_pix1 <- sigma_seeing_arcsec / pix1_arcsec
+    psf_seeing <- create_psf_gaussian(N_pix1, sigma_seeing_pix1)
+    
+    psf_sim <- convolve(psf_seeing, psf_optics)
+    psf_sim <- convolve(psf_sim, psf_airydisc)
+    psf_sim[psf_sim < 0.0] <- 0.0
+    #Blurred image on the sensor in size of simulation
+    img1_blurred <- convolve(img1, psf_sim)
+    
+    #Calculation for aperture MTF
+    img1_captured <- boxblur(img1_blurred, sim_resolution)
+    #Blurred image captured by 3-band sensor
+    img1_captured <- imresize(img1_captured, scale = 1.0 / sim_resolution, interpolation = -1)
+    img1_captured[img1_captured < 0.0] <- 0.0
+    
+    dim_img <- dim(img1_captured)
+    
+    img_processed <- demosaic(img1_captured, camera, interpolation)
+    img_upsampled <- resize(img_processed, 
+                            size_x = dim_img[1] * sim_resolution, 
+                            size_y = dim_img[2] * sim_resolution, 
+                            interpolation_type = 3)
+    img_upsampled[img_upsampled < 0.0] <- 0.0
+    
+    dev.set(dev.list()[1])
+    rasterImage(img1_blurred^gamma, 
+                m * pw + 1, (n + 1) * ph + 1, (m + 1) * pw, (n) * ph + 1,
+                interpolate = FALSE)
+    text(m * pw + 1, n*pw + 1, 
+         glue("{pix_um}um , {sigma_seeing_arcsec}\" "), 
+         col = "yellow", adj = c(0, 1))
+    
+    
+    dev.set(dev.list()[2])
+    rasterImage(img1^gamma, m * pw + 1, (n + 1) * ph + 1, (m + 1) * pw, (n) * ph + 1,
+                interpolate = FALSE)
+    text(m * pw + 1, n*pw + 1,
+         glue("{pix_um}um , {sigma_seeing_arcsec}\" "),
+         col = "green", adj = c(0, 1))
+
+    dev.set(dev.list()[3])
+    rasterImage(img_processed^gamma, m * pw + 1, (n + 1) * ph + 1, (m + 1) * pw, (n) * ph + 1,
+                interpolate = FALSE)
+    text(m * pw + 1, n*pw + 1,
+         glue("{pix_um}um , {sigma_seeing_arcsec}\" "),
+         col = "cyan", adj = c(0, 1))
+    
+    dev.set(dev.list()[4])
+    rasterImage(img_upsampled^gamma, m * pw + 1, (n + 1) * ph + 1, (m + 1) * pw, (n) * ph + 1,
+                interpolate = FALSE)
+    text(m * pw + 1, n*pw + 1,
+         glue("{pix_um}um , {sigma_seeing_arcsec}\" "),
+         col = "magenta", adj = c(0, 1))
+
+    n <- n + 1
+  }
+  m <- m + 1
+}
+
+# 
+# 
+# 
+# 
+# rasterImage(img_processed^gamma, 0 * pw + 1, (1 + 1) * pw + 1, (0 + 1) * pw, (1) * pw + 1, interpolate = FALSE)
+# text(0*pw + 1, 1*pw + 1, glue("Captured by {input$camera} camera"), col = "cyan", adj = c(0, 1))
+# 
+# rasterImage(img_upsampled^gamma, 1 * pw + 1, (1 + 1) * pw + 1, (1 + 1) * pw, (1) * pw + 1, interpolate = FALSE)
+# text(1*pw + 1, 1*pw + 1, glue("Captured by {input$camera} camera : Upsampled."), col = "magenta", adj = c(0, 1))
+
+```

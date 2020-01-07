@@ -1,0 +1,59 @@
+---
+title: "SB"
+output: html_notebook
+---
+
+
+```{r setup}
+library(tidyverse)
+library(imager)
+```
+
+
+```{r, fig.width = 8, fig.height = 4, echo = FALSE, eval = FALSE, warning = FALSE}
+img0 <- load.image("/ws/Astro/ASApp/img//Saturn_HST_2004-03-22.jpg")
+img0 <- (img0 / max(img0)) ^ (2.2)
+arcsec_pix0 <- 19.43 / 890
+#arcsec_pix <- 0.51662
+focal_length <- 539
+um_pix <- 1.35
+arcsec_pix <- 180 / pi * 2 * atan(um_pix / 1000 / 2 / focal_length) * 60 * 60
+sim_resolution <- 4
+arcsec_pix1 <- arcsec_pix / sim_resolution
+
+sigma_arcsec <- 1.0
+sigma_pix1 <- sigma_arcsec / arcsec_pix1
+N <- round(sigma_pix1 * 3) * 2
+psf <- as.cimg(function(x, y) exp(-((x - N / 2)^2 + (y - N / 2)^2)/(2 * sigma_pix1^2)), N, N)
+
+#rimg00 <- imresize(img0, arcsec_pix0 / arcsec_pix, interpolation = 1)
+#plot( rimg00 )
+
+img1 <- imresize(img0, arcsec_pix0 / arcsec_pix1, interpolation = 3)
+plot( img1 ) 
+img1_psf_blurred <- convolve(img1, psf)
+plot( img1_psf_blurred )
+
+
+img <- imresize(img1, scale = 1.0 / sim_resolution, interpolation = 1)
+plot( img )
+img_psf_blurred <- imresize(img1_psf_blurred, scale = 1.0 / sim_resolution, interpolation = 1)
+plot( img_psf_blurred )
+#Calculation for aperture MTF
+img_psf_blurred <- imresize(boxblur(img1_psf_blurred, sim_resolution), scale = 1.0 / sim_resolution, interpolation = 1)
+plot( img_psf_blurred )
+
+```
+
+```{r}
+N <- 16
+lambda_um <- 500 * 10^(-3)
+f_ratio <- 8
+airy <- as.cimg(function(x, y) {
+  r <- sqrt((x - N / 2)^2 + (y - N / 2)^2); 
+  xx <- pi * r / lambda_um / f_ratio;
+  (2 * besselJ( xx, 1) / xx)^2  }, N, N)
+airy[N/2,N/2] <- 1
+plot((airy)^(1 / 2.2))
+```
+

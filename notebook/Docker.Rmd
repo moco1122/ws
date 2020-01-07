@@ -1,0 +1,46 @@
+---
+title: "Docker"
+author: "Atsushi Kawai"
+date: "2019/11/30"
+output: html_document
+---
+Dockerの使い方メモ
+
+https://qiita.com/kurkuru/items/127fa99ef5b2f0288b81
+
++ アカウント作成
+
+ak1122
+me*R11(9けた必要)
+
+(mac)
++ Docker Desktop for Macをインストール・起動するとターミナルからdockerが使えるようになる
+
++ コンテナとイメージの違いは？
+```
+#例をダウンロード
+git clone https://github.com/docker/doodle.git
+#コンテナをビルド？
+cd doodle/cheers2019 &&
+docker build -t ak1122/cheers2019 .
+#コンテナを実行
+docker run -it --rm ak1122/cheers2019
+#コンテナを公開
+docker login &&
+docker push ak1122/cheers2019
+#イメージの一覧
+docker image ls
+#コンテナの一覧
+#-aをつけると起動中以外のものも表示
+docker container ls -a
+```
+
+https://igjit.github.io/camera-raw-processing-r/section-1.html
+
+```
+docker pull igjit/r-raw-processing
+docker run --rm -p 8787:8787 -e PASSWORD=rrr igjit/r-raw-processing
+
+```
+
+ http://localhost:8787/
